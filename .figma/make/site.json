@@ -1,0 +1,11 @@
+{
+  "title": "Xanaano — School Management",
+  "description": "Xanaano is a multi-tenant school and kindergarten management system for administrators, teachers, and parents.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
