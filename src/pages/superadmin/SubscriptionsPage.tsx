@@ -1,15 +1,32 @@
 import { Icon } from '../../components/Icons'
-import { SUBSCRIPTION_PLANS, SCHOOLS } from '../../data/mockData'
+import StatCard from '../../components/StatCard'
+import { SUBSCRIPTION_PLANS, SCHOOLS, PLATFORM_PAYMENTS, planPrice } from '../../data/mockData'
 
 export default function SubscriptionsPage() {
+  const active = SCHOOLS.filter(s => s.status === 'Active').length
+  const trial = SCHOOLS.filter(s => s.plan === 'Trial').length
+  const expiringSoon = SCHOOLS.filter(s => s.status === 'Active' && s.renewalDate <= '2026-09-15').length
+  const pastDue = SCHOOLS.filter(s => PLATFORM_PAYMENTS.some(p => p.school === s.name && (p.status === 'Failed' || p.status === 'Pending'))).length
+  const mrr = SCHOOLS.filter(s => s.status === 'Active').reduce((sum, s) => sum + planPrice(s.plan), 0)
+  const arr = mrr * 12
+
   return (
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">Subscription Plans</div>
-          <div className="page-subtitle">Manage pricing tiers for Xanaano</div>
+          <div className="page-title">Subscriptions</div>
+          <div className="page-subtitle">Manage pricing tiers and tenant subscriptions</div>
         </div>
         <button className="btn-primary"><Icon.Plus /> New Plan</button>
+      </div>
+
+      <div className="grid-stats" style={{ marginBottom: 24 }}>
+        <StatCard label="Active subscriptions" value={active} icon={<Icon.CheckCircle />} iconBg="#dcfce7" iconColor="#15803d" />
+        <StatCard label="Trial schools" value={trial} icon={<Icon.Timetable />} iconBg="#fef3c7" iconColor="#b45309" />
+        <StatCard label="Expiring soon" value={expiringSoon} icon={<Icon.Clock />} iconBg="#e0f2fe" iconColor="#0369a1" />
+        <StatCard label="Past due" value={pastDue} icon={<Icon.AlertTriangle />} iconBg="#fee2e2" iconColor="#dc2626" />
+        <StatCard label="MRR" value={`$${mrr.toLocaleString()}`} icon={<Icon.Dollar />} iconBg="#dbeafe" iconColor="#1d4ed8" trend={{ value: '10.4%', positive: true }} />
+        <StatCard label="ARR" value={`$${arr.toLocaleString()}`} icon={<Icon.Payment />} iconBg="#f3e8ff" iconColor="#7c3aed" />
       </div>
 
       {/* Plan cards */}
@@ -103,22 +120,22 @@ export default function SubscriptionsPage() {
               </tr>
             </thead>
             <tbody>
-              {SCHOOLS.filter(s => s.status === 'Active').map(school => (
+              {SCHOOLS.map(school => (
                 <tr key={school.id}>
                   <td>
                     <div style={{ fontWeight: 600, color: '#1e293b' }}>{school.name}</div>
                     <div style={{ fontSize: 12, color: '#94a3b8' }}>{school.admin}</div>
                   </td>
                   <td>
-                    <span className={`badge ${school.plan === 'Premium' ? 'badge-blue' : school.plan === 'Standard' ? 'badge-purple' : 'badge-gray'}`}>
+                    <span className={`badge ${school.plan === 'Premium' ? 'badge-blue' : school.plan === 'Standard' ? 'badge-purple' : school.plan === 'Trial' ? 'badge-amber' : 'badge-gray'}`}>
                       {school.plan}
                     </span>
                   </td>
                   <td style={{ fontWeight: 600 }}>
-                    ${SUBSCRIPTION_PLANS.find(p => p.name === school.plan)?.price ?? 0}/mo
+                    ${planPrice(school.plan).toLocaleString()}/mo
                   </td>
-                  <td style={{ color: '#64748b' }}>2026-09-01</td>
-                  <td><span className="badge badge-green">Active</span></td>
+                  <td style={{ color: '#64748b' }}>{school.renewalDate}</td>
+                  <td><span className={`badge ${school.status === 'Active' ? 'badge-green' : school.status === 'Suspended' ? 'badge-red' : 'badge-amber'}`}>{school.status}</span></td>
                   <td>
                     <div style={{ display: 'flex', gap: 2 }}>
                       <button className="btn-icon"><Icon.Eye /></button>

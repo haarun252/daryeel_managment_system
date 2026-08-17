@@ -16,29 +16,19 @@ interface NavSection {
 }
 
 const SUPER_ADMIN: NavSection[] = [
-  { title: 'Main', items: [
-    { label: 'Dashboard', icon: 'Dashboard', page: 'sa-dashboard' },
+  { title: 'Platform', items: [
+    { label: 'Overview', icon: 'Dashboard', page: 'sa-dashboard' },
     { label: 'Schools', icon: 'School', page: 'sa-schools', badge: 5 },
-    { label: 'School Admins', icon: 'Profile', page: 'sa-admins' },
+    { label: 'Subscriptions', icon: 'Subscription', page: 'sa-subscriptions' },
+    { label: 'Platform Revenue', icon: 'Dollar', page: 'sa-revenue' },
     { label: 'Users', icon: 'Users', page: 'sa-users' },
+    { label: 'System Analytics', icon: 'Activity', page: 'sa-analytics' },
   ]},
-  { title: 'Finance', items: [
-    { label: 'Plans', icon: 'Subscription', page: 'sa-plans' },
-    { label: 'Subscriptions', icon: 'Layers', page: 'sa-subscriptions' },
-    { label: 'Payments', icon: 'Payment', page: 'sa-payments' },
-    { label: 'Revenue', icon: 'Dollar', page: 'sa-revenue' },
-  ]},
-  { title: 'Management', items: [
-    { label: 'Reports', icon: 'Report', page: 'sa-reports' },
-    { label: 'Notifications', icon: 'Bell', page: 'sa-notifications' },
-    { label: 'Announcements', icon: 'Announcement', page: 'sa-announcements' },
-    { label: 'Support', icon: 'Support', page: 'sa-support' },
-    { label: 'Activity Logs', icon: 'Activity', page: 'sa-activity' },
-  ]},
-  { title: 'System', items: [
-    { label: 'Settings', icon: 'Settings', page: 'sa-settings' },
-    { label: 'Roles', icon: 'Shield', page: 'sa-roles' },
+  { title: 'Operations', items: [
     { label: 'Audit Logs', icon: 'Clipboard', page: 'sa-audit' },
+    { label: 'Notifications', icon: 'Bell', page: 'sa-notifications' },
+    { label: 'Platform Settings', icon: 'Settings', page: 'sa-settings' },
+    { label: 'Support', icon: 'Support', page: 'sa-support' },
   ]},
 ]
 
@@ -46,42 +36,31 @@ const SCHOOL_ADMIN: NavSection[] = [
   { title: 'Main', items: [
     { label: 'Dashboard', icon: 'Dashboard', page: 'ad-dashboard' },
     { label: 'Students', icon: 'Student', page: 'ad-students' },
-    { label: 'Teachers', icon: 'Teacher', page: 'ad-teachers' },
     { label: 'Parents', icon: 'Parent', page: 'ad-parents' },
+    { label: 'Teachers', icon: 'Teacher', page: 'ad-teachers' },
     { label: 'Classes', icon: 'Class', page: 'ad-classes' },
-    { label: 'Sections', icon: 'Layers', page: 'ad-sections' },
     { label: 'Subjects', icon: 'Subject', page: 'ad-subjects' },
   ]},
   { title: 'Academic', items: [
-    { label: 'Attendance', icon: 'Attendance', page: 'ad-attendance' },
     { label: 'Timetable', icon: 'Timetable', page: 'ad-timetable' },
-    { label: 'Assignments', icon: 'Assignment', page: 'ad-assignments' },
-    { label: 'Exams', icon: 'Exam', page: 'ad-exams' },
-    { label: 'Results', icon: 'Results', page: 'ad-results' },
-    { label: 'Report Cards', icon: 'Report', page: 'ad-reportcards' },
+    { label: 'Attendance', icon: 'Attendance', page: 'ad-attendance' },
+    { label: 'Exams & Marks', icon: 'Exam', page: 'ad-exams' },
+    { label: 'Reports', icon: 'Report', page: 'ad-reports' },
+  ]},
+  { title: 'Operations', items: [
+    { label: 'Transport', icon: 'Bus', page: 'ad-transport' },
+    { label: 'Staff', icon: 'Worker', page: 'ad-staff' },
   ]},
   { title: 'Finance', items: [
     { label: 'Fees', icon: 'Fees', page: 'ad-fees' },
     { label: 'Payments', icon: 'Payment', page: 'ad-payments' },
-    { label: 'Invoices', icon: 'File', page: 'ad-invoices' },
+    { label: 'Income', icon: 'Dollar', page: 'ad-income' },
     { label: 'Expenses', icon: 'Wallet', page: 'ad-expenses' },
+    { label: 'Finance', icon: 'Activity', page: 'ad-finance' },
   ]},
   { title: 'Communication', items: [
-    { label: 'Announcements', icon: 'Announcement', page: 'ad-announcements' },
-    { label: 'Events', icon: 'Event', page: 'ad-events' },
-    { label: 'Messages', icon: 'Message', page: 'ad-messages' },
     { label: 'Notifications', icon: 'Bell', page: 'ad-notifications' },
-  ]},
-  { title: 'Reports', items: [
-    { label: 'Student Reports', icon: 'Student', page: 'ad-reports-students' },
-    { label: 'Attendance Reports', icon: 'Attendance', page: 'ad-reports-attendance' },
-    { label: 'Fee Reports', icon: 'Fees', page: 'ad-reports-fees' },
-    { label: 'Academic Reports', icon: 'Results', page: 'ad-reports-academic' },
-  ]},
-  { title: 'Settings', items: [
     { label: 'School Settings', icon: 'Settings', page: 'ad-settings' },
-    { label: 'Academic Settings', icon: 'Class', page: 'ad-settings-academic' },
-    { label: 'Notification Settings', icon: 'Bell', page: 'ad-settings-notifications' },
   ]},
 ]
 
@@ -90,20 +69,16 @@ const TEACHER: NavSection[] = [
     { label: 'Dashboard', icon: 'Dashboard', page: 'te-dashboard' },
     { label: 'My Classes', icon: 'Class', page: 'te-classes' },
     { label: 'My Students', icon: 'Student', page: 'te-students' },
+    { label: 'My Timetable', icon: 'Timetable', page: 'te-timetable' },
     { label: 'Attendance', icon: 'Attendance', page: 'te-attendance' },
-    { label: 'Assignments', icon: 'Assignment', page: 'te-assignments' },
-    { label: 'Exams', icon: 'Exam', page: 'te-exams' },
-    { label: 'Results', icon: 'Results', page: 'te-results' },
-    { label: 'Timetable', icon: 'Timetable', page: 'te-timetable' },
+    { label: 'Exams & Marks', icon: 'Exam', page: 'te-exams' },
+    { label: 'Student Reports', icon: 'Report', page: 'te-reports' },
   ]},
   { title: 'Communication', items: [
-    { label: 'Announcements', icon: 'Announcement', page: 'te-announcements' },
-    { label: 'Messages', icon: 'Message', page: 'te-messages' },
     { label: 'Notifications', icon: 'Bell', page: 'te-notifications' },
   ]},
   { title: 'Account', items: [
-    { label: 'Profile', icon: 'Profile', page: 'te-profile' },
-    { label: 'Settings', icon: 'Settings', page: 'te-settings' },
+    { label: 'My Profile', icon: 'Profile', page: 'te-profile' },
   ]},
 ]
 
@@ -116,6 +91,7 @@ const PARENT: NavSection[] = [
     { label: 'Exams', icon: 'Exam', page: 'pa-exams' },
     { label: 'Results', icon: 'Results', page: 'pa-results' },
     { label: 'Timetable', icon: 'Timetable', page: 'pa-timetable' },
+    { label: 'Reports', icon: 'Report', page: 'pa-reports' },
   ]},
   { title: 'Finance', items: [
     { label: 'Fees', icon: 'Fees', page: 'pa-fees' },
