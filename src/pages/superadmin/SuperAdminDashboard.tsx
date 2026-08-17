@@ -1,12 +1,17 @@
+import { useState } from 'react'
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
+import StatCard from '../../components/StatCard'
 import { Icon } from '../../components/Icons'
-import { SCHOOLS, REVENUE_DATA, SCHOOL_GROWTH_DATA, SUBSCRIPTION_PLANS } from '../../data/mockData'
+import DataTable from '../../components/DataTable'
+import Modal from '../../components/Modal'
+import { SCHOOLS, REVENUE_DATA, SCHOOL_GROWTH_DATA, SUBSCRIPTION_PLANS, RECENT_REGISTRATIONS, SCHOOLS_REQUIRING_ATTENTION, PLATFORM_ACTIVITY, planPrice, initials } from '../../data/mockData'
+import type { School } from '../../data/mockData'
+import { useApp } from '../../context/AppContext'
 
 interface Props {
   onNavigate: (page: string) => void
 }
 
-// Custom tooltip for charts
 const CustomTooltip = ({ active, payload, label, prefix = '' }: any) => {
   if (active && payload && payload.length) {
     return (
@@ -24,23 +29,44 @@ const CustomTooltip = ({ active, payload, label, prefix = '' }: any) => {
           {prefix}{Number(payload[0].value).toLocaleString()}
         </div>
       </div>
-    );
+    )
   }
-  return null;
-};
+  return null
+}
+
+const planColors: Record<string, string> = { Premium: '#3b82f6', Standard: '#ec4899', Basic: '#10b981', Trial: '#94a3b8' }
 
 export default function SuperAdminDashboard({ onNavigate }: Props) {
-  const planData = SUBSCRIPTION_PLANS.map(p => ({ name: p.name, value: p.subscribers }))
+  const { toast } = useApp()
+  const [schools, setSchools] = useState<School[]>(SCHOOLS)
+  const [view, setView] = useState<School | null>(null)
+
+  const totalStudents = schools.reduce((s, x) => s + x.students, 0)
+  const totalTeachers = schools.reduce((s, x) => s + x.teachers, 0)
+  const totalParents = Math.round(totalStudents * 0.58)
+  const activeSchools = schools.filter(s => s.status === 'Active').length
+  const trialSchools = schools.filter(s => s.plan === 'Trial').length
+  const suspendedSchools = schools.filter(s => s.status === 'Suspended').length
+  const mrr = schools.filter(s => s.status === 'Active').reduce((s, x) => s + planPrice(x.plan), 0)
+
+  const planData = ['Premium', 'Standard', 'Basic', 'Trial'].map(name => ({
+    name,
+    value: schools.filter(s => s.plan === name).length,
+  }))
+
+  const toggleStatus = (school: School) => {
+    setSchools(list => list.map(x => x.id === school.id ? { ...x, status: x.status === 'Suspended' ? 'Active' : 'Suspended' } : x))
+    toast('success', `${school.name} ${school.status === 'Suspended' ? 'activated.' : 'suspended.'}`)
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24, paddingRight: 10 }}>
       {/* Header section */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
         <h1 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 32, fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.5px' }}>
-          Dashboard
+          Overview
         </h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {/* Mock date selector like reference */}
           <div style={{
             display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px',
             background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)',
@@ -52,131 +78,101 @@ export default function SuperAdminDashboard({ onNavigate }: Props) {
         </div>
       </div>
 
-      {/* Main Grid - matching reference layout roughly: Top row with huge chart + side panels */}
+      {/* Statistics */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: 14 }}>
+        <StatCard label="Total Schools" value={schools.length} icon={<Icon.School />} iconBg="#dbeafe" iconColor="#1d4ed8" />
+        <StatCard label="Active Schools" value={activeSchools} icon={<Icon.CheckCircle />} iconBg="#dcfce7" iconColor="#15803d" />
+        <StatCard label="Trial Schools" value={trialSchools} icon={<Icon.Timetable />} iconBg="#fef3c7" iconColor="#b45309" />
+        <StatCard label="Suspended Schools" value={suspendedSchools} icon={<Icon.AlertTriangle />} iconBg="#fee2e2" iconColor="#dc2626" />
+        <StatCard label="Total Students" value={totalStudents.toLocaleString()} icon={<Icon.Student />} iconBg="#e0f2fe" iconColor="#0369a1" />
+        <StatCard label="Total Teachers" value={totalTeachers.toLocaleString()} icon={<Icon.Teacher />} iconBg="#f0fdf4" iconColor="#16a34a" />
+        <StatCard label="Total Parents" value={totalParents.toLocaleString()} icon={<Icon.Parent />} iconBg="#f3e8ff" iconColor="#7c3aed" />
+        <StatCard label="Monthly Recurring Revenue" value={`$${mrr.toLocaleString()}`} icon={<Icon.Dollar />} iconBg="#dbeafe" iconColor="#1d4ed8" trend={{ value: '10.4%', positive: true }} />
+      </div>
+
+      {/* Top row: revenue trend + subscription distribution */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 24 }}>
-        
-        {/* Left Column: Huge Revenue Chart */}
-        <div className="card" style={{ padding: '24px 30px', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
+        <div className="card" style={{ padding: '24px 30px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                <span style={{ fontSize: 20, fontWeight: 700, color: '#0f172a' }}>Revenue</span>
+                <span style={{ fontSize: 20, fontWeight: 700, color: '#0f172a' }}>Revenue Trend</span>
                 <span style={{ fontSize: 13, fontWeight: 600, color: '#16a34a', display: 'flex', alignItems: 'center', gap: 4, background: '#dcfce7', padding: '2px 8px', borderRadius: 20 }}>
                   <Icon.TrendUp /> 2.67%
                 </span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 24, fontSize: 13, color: '#64748b' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6' }} /> Last 30 days
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#cbd5e1' }} /> Last year
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6' }} /> This year
                 </div>
               </div>
             </div>
-            <button style={{ background: 'none', border: 'none', color: '#64748b', fontSize: 13, display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
+            <button style={{ background: 'none', border: 'none', color: '#64748b', fontSize: 13, display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }} onClick={() => onNavigate('sa-revenue')}>
               Full Report <Icon.ChevronRight />
             </button>
           </div>
-
-          <div style={{ flex: 1, minHeight: 280 }}>
+          <div style={{ flex: 1, minHeight: 240 }}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={REVENUE_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(226,232,240,0.6)" />
                 <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8' }} tickFormatter={v => `$${v/1000}k`} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8' }} tickFormatter={v => `$${v / 1000}k`} />
                 <Tooltip content={<CustomTooltip prefix="$" />} cursor={{ stroke: '#cbd5e1', strokeWidth: 1, strokeDasharray: '4 4' }} />
                 <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} fill="url(#colorRev)" activeDot={{ r: 6, fill: '#3b82f6', stroke: 'white', strokeWidth: 2 }} />
-                <Area type="monotone" dataKey="revenue" data={REVENUE_DATA.map(d => ({...d, revenue: d.revenue * 0.8}))} stroke="#cbd5e1" strokeWidth={2} fill="none" dot={false} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Right Column: Stacked cards */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          {/* Conversion/Abandonment Card (Adapted to platform metrics) */}
-          <div className="card" style={{ padding: 24 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <span style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>Platform Health</span>
-              <Icon.Info />
-            </div>
-            
-            <div style={{ fontSize: 13, color: '#64748b', marginBottom: 24 }}>
-              <span style={{ color: '#ec4899', fontWeight: 600 }}>-3.05%</span> compare to the same period last year
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                <div style={{ width: 48, height: 48, borderRadius: '50%', border: '4px solid #ec4899', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ec4899' }}>
-                  <Icon.School />
-                </div>
-                <div>
-                  <div style={{ fontSize: 20, fontWeight: 700, color: '#0f172a' }}>61.4%</div>
-                  <div style={{ fontSize: 13, color: '#64748b' }}>Active Schools<br/><span style={{ color: '#0f172a', fontWeight: 500 }}>{SCHOOLS.length} Total</span></div>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                <div style={{ width: 48, height: 48, borderRadius: '50%', border: '4px solid #3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6' }}>
-                  <Icon.Subscription />
-                </div>
-                <div>
-                  <div style={{ fontSize: 20, fontWeight: 700, color: '#0f172a' }}>88.2%</div>
-                  <div style={{ fontSize: 13, color: '#64748b' }}>Premium Conversion<br/><span style={{ color: '#0f172a', fontWeight: 500 }}>{planData.reduce((a,b) => a+b.value, 0)} Subs</span></div>
-                </div>
-              </div>
-            </div>
+        {/* Subscription distribution */}
+        <div className="card" style={{ padding: '24px 30px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+            <span style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>Subscription Distribution</span>
+            <button style={{ background: 'none', border: 'none', color: '#64748b', fontSize: 13, display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }} onClick={() => onNavigate('sa-subscriptions')}>
+              Manage <Icon.ChevronRight />
+            </button>
           </div>
-
-          {/* Total Sales/Revenue Card */}
-          <div className="card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <div style={{ fontSize: 14, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>Total Platform Revenue</div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
-              <span style={{ fontSize: 32, fontWeight: 800, color: '#0f172a', letterSpacing: '-1px' }}>$149,757</span>
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#16a34a', display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Icon.TrendUp /> 4.97%
-              </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 24, height: 160 }}>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-around', height: '100%', paddingBottom: 10, borderBottom: '1px solid var(--border-subtle)' }}>
+              {planData.map(p => (
+                <div key={p.name} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                  <div style={{ width: 14, height: `${Math.max(10, p.value * 22)}%`, background: planColors[p.name], borderRadius: 6 }} />
+                </div>
+              ))}
+            </div>
+            <div style={{ flex: 1.4, display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {planData.map(p => (
+                <div key={p.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: planColors[p.name] }} />
+                    <span style={{ color: '#64748b' }}>{p.name}</span>
+                  </div>
+                  <span style={{ fontWeight: 700, color: '#0f172a' }}>{p.value}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom Grid */}
+      {/* Middle row: school growth + new schools */}
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24 }}>
-        {/* Bar chart - Schools Growth */}
         <div className="card" style={{ padding: '24px 30px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>School Onboarding</span>
+              <span style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>School Growth</span>
               <span style={{ fontSize: 13, fontWeight: 600, color: '#16a34a', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Icon.TrendUp /> 5.52%
               </span>
             </div>
-            <button style={{ background: 'none', border: 'none', color: '#64748b', fontSize: 13, display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
-              Full Report <Icon.ChevronRight />
-            </button>
           </div>
-
-          <div style={{ display: 'flex', gap: 24, marginBottom: 24, fontSize: 13, color: '#64748b' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div style={{ width: 12, height: 12, borderRadius: 3, background: '#3b82f6' }} /> Basic
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div style={{ width: 12, height: 12, borderRadius: 3, background: '#ec4899' }} /> Premium
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div style={{ width: 12, height: 12, borderRadius: 3, background: '#10b981' }} /> Enterprise
-            </div>
-          </div>
-
-          <ResponsiveContainer width="100%" height={220}>
+          <ResponsiveContainer width="100%" height={200}>
             <BarChart data={SCHOOL_GROWTH_DATA} margin={{ top: 0, right: 0, left: -20, bottom: 0 }} barSize={32}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(226,232,240,0.6)" />
               <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8' }} dy={10} />
@@ -187,47 +183,126 @@ export default function SuperAdminDashboard({ onNavigate }: Props) {
           </ResponsiveContainer>
         </div>
 
-        {/* Subscription Breakdown - matching the right side bars from reference */}
-        <div className="card" style={{ padding: '24px 30px' }}>
-           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-            <span style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>Subscription Breakdown</span>
-            <button style={{ background: 'none', border: 'none', color: '#64748b', fontSize: 13, display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
-              Full Report <Icon.ChevronRight />
-            </button>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 24, height: 200 }}>
-            {/* Custom vertical bar visual to match reference style */}
-            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-around', height: '100%', paddingBottom: 10, borderBottom: '1px solid var(--border-subtle)' }}>
-              {planData.map((p, i) => {
-                const colors = ['#3b82f6', '#ec4899', '#10b981'];
-                const heights = ['80%', '60%', '30%']; // mock heights
-                return (
-                  <div key={p.name} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                    <div style={{ width: 12, height: heights[i], background: colors[i], borderRadius: 6 }} />
-                  </div>
-                )
-              })}
+        {/* New schools this month */}
+        <div className="card" style={{ padding: '20px 24px' }}>
+          <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 16 }}>New Schools This Month</div>
+          {RECENT_REGISTRATIONS.map(r => (
+            <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, paddingBottom: 12, borderBottom: '1px solid var(--border-subtle)' }}>
+              <div className="avatar" style={{ background: '#dbeafe', color: '#1d4ed8' }}>{initials(r.school)}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13.5, fontWeight: 600, color: '#1e293b' }}>{r.school}</div>
+                <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.admin} · {r.date}</div>
+              </div>
+              <span className="badge badge-blue">{r.plan}</span>
             </div>
-            
-            {/* Right side legend/stats */}
-            <div style={{ flex: 1.5, display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {planData.map((p, i) => {
-                const colors = ['#3b82f6', '#ec4899', '#10b981'];
-                return (
-                  <div key={p.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ width: 8, height: 8, borderRadius: '50%', background: colors[i] }} />
-                      <span style={{ color: '#64748b' }}>{p.name}</span>
-                    </div>
-                    <span style={{ fontWeight: 700, color: '#0f172a' }}>{p.value}</span>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
+          ))}
+          <button className="btn-secondary" style={{ width: '100%', justifyContent: 'center' }} onClick={() => onNavigate('sa-schools')}>View all schools</button>
         </div>
       </div>
+
+      {/* Bottom row: attention + activity */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+        <div className="card" style={{ padding: '20px 24px' }}>
+          <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 16 }}>Schools Requiring Attention</div>
+          {SCHOOLS_REQUIRING_ATTENTION.map(item => (
+            <div key={item.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 14, paddingBottom: 12, borderBottom: '1px solid var(--border-subtle)' }}>
+              <span className={`badge ${item.severity === 'Critical' ? 'badge-red' : 'badge-amber'}`} style={{ flexShrink: 0 }}>{item.severity}</span>
+              <div>
+                <div style={{ fontSize: 13.5, fontWeight: 600, color: '#1e293b' }}>{item.school}</div>
+                <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>{item.issue}</div>
+              </div>
+            </div>
+          ))}
+          <button className="btn-secondary" style={{ width: '100%', justifyContent: 'center' }} onClick={() => onNavigate('sa-schools')}>Resolve</button>
+        </div>
+
+        <div className="card" style={{ padding: '20px 24px' }}>
+          <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 16 }}>Recent Platform Activity</div>
+          {PLATFORM_ACTIVITY.map(a => (
+            <div key={a.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 14, paddingBottom: 12, borderBottom: '1px solid var(--border-subtle)' }}>
+              <div style={{ width: 34, height: 34, borderRadius: 9, background: 'var(--primary-soft)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Icon.Activity />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13, color: '#64748b' }}>
+                  <b style={{ color: '#1e293b' }}>{a.actor}</b> {a.action.toLowerCase()}
+                </div>
+                <div style={{ fontSize: 11.5, color: '#94a3b8' }}>{a.time} · {a.module}</div>
+              </div>
+            </div>
+          ))}
+          <button className="btn-secondary" style={{ width: '100%', justifyContent: 'center' }} onClick={() => onNavigate('sa-audit')}>View audit logs</button>
+        </div>
+      </div>
+
+      {/* Schools table */}
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+          <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 16, color: '#0f172a' }}>Schools</div>
+          <button className="btn-secondary" onClick={() => onNavigate('sa-schools')}>Manage schools</button>
+        </div>
+        <DataTable
+          data={schools as unknown as Record<string, unknown>[]}
+          searchKeys={['name', 'admin']}
+          exportName="schools"
+          searchPlaceholder="Search schools..."
+          columns={[
+            { key: 'name', label: 'School', render: r => (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div className="avatar">{initials(String(r.name))}</div>
+                <div>
+                  <div style={{ fontWeight: 600 }}>{String(r.name)}</div>
+                  <div className="muted" style={{ fontSize: 11 }}>{String(r.email)}</div>
+                </div>
+              </div>
+            ) },
+            { key: 'admin', label: 'Admin' },
+            { key: 'students', label: 'Students', render: r => Number(r.students).toLocaleString() },
+            { key: 'plan', label: 'Plan', render: r => <span className={`badge ${r.plan === 'Premium' ? 'badge-blue' : r.plan === 'Standard' ? 'badge-purple' : 'badge-gray'}`}>{String(r.plan)}</span> },
+            { key: 'status', label: 'Status', render: r => <span className={`badge ${r.status === 'Active' ? 'badge-green' : r.status === 'Suspended' ? 'badge-red' : 'badge-amber'}`}>{String(r.status)}</span> },
+            { key: 'createdDate', label: 'Created' },
+            { key: 'renewalDate', label: 'Renewal' },
+          ]}
+          actions={r => {
+            const s = r as unknown as School
+            return (
+              <div style={{ display: 'flex', gap: 2 }}>
+                <button className="btn-icon" title="View" onClick={() => setView(s)}><Icon.Eye /></button>
+                {s.status === 'Suspended'
+                  ? <button className="btn-icon" title="Activate" style={{ color: '#16a34a' }} onClick={() => toggleStatus(s)}><Icon.Check /></button>
+                  : <button className="btn-icon" title="Suspend" style={{ color: '#dc2626' }} onClick={() => toggleStatus(s)}><Icon.AlertTriangle /></button>}
+              </div>
+            )
+          }}
+        />
+      </div>
+
+      <Modal open={!!view} onClose={() => setView(null)} title="School Overview" size="lg"
+        footer={<>
+          <button className="btn-secondary" onClick={() => setView(null)}>Close</button>
+          <button className="btn-primary" onClick={() => { onNavigate('sa-schools'); setView(null) }}>Open full details</button>
+        </>}>
+        {view && (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'var(--bg-muted)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
+              <div className="avatar" style={{ width: 52, height: 52, fontSize: 18 }}>{initials(view.name)}</div>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: 17, fontFamily: 'Plus Jakarta Sans, sans-serif' }}>{view.name}</div>
+                <div className="muted">{view.admin} · {view.plan} plan</div>
+              </div>
+              <span className={`badge ${view.status === 'Active' ? 'badge-green' : view.status === 'Suspended' ? 'badge-red' : 'badge-amber'}`} style={{ marginLeft: 'auto' }}>{view.status}</span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              {[['Students', view.students.toLocaleString()], ['Teachers', view.teachers], ['Renewal', view.renewalDate], ['Created', view.createdDate]].map(([k, v]) => (
+                <div key={k} style={{ background: 'var(--bg-muted)', borderRadius: 8, padding: '10px 12px' }}>
+                  <div className="muted" style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>{k}</div>
+                  <div style={{ fontWeight: 600 }}>{v}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   )
 }

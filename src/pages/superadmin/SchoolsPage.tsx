@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Icon } from '../../components/Icons'
 import Modal from '../../components/Modal'
-import { SCHOOLS } from '../../data/mockData'
+import { SCHOOLS, planPrice, PLATFORM_PAYMENTS, AUDIT_LOGS } from '../../data/mockData'
 import type { School } from '../../data/mockData'
 import { useApp } from '../../context/AppContext'
 
@@ -14,9 +14,10 @@ export default function SchoolsPage() {
   const [viewSchool, setViewSchool] = useState<School | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<School | null>(null)
   const [page, setPage] = useState(1)
+  const [schools, setSchools] = useState(SCHOOLS)
   const pageSize = 6
 
-  const filtered = SCHOOLS.filter(s => {
+  const filtered = schools.filter(s => {
     const matchSearch = s.name.toLowerCase().includes(search.toLowerCase()) || s.admin.toLowerCase().includes(search.toLowerCase())
     const matchStatus = statusFilter === 'All' || s.status === statusFilter
     const matchPlan = planFilter === 'All' || s.plan === planFilter
@@ -24,6 +25,11 @@ export default function SchoolsPage() {
   })
   const totalPages = Math.ceil(filtered.length / pageSize)
   const paginated = filtered.slice((page - 1) * pageSize, page * pageSize)
+
+  const toggleStatus = (school: School) => {
+    setSchools(list => list.map(x => x.id === school.id ? { ...x, status: x.status === 'Suspended' ? 'Active' : 'Suspended' } : x))
+    toast('success', `${school.name} ${school.status === 'Suspended' ? 'activated.' : 'suspended.'}`)
+  }
 
   return (
     <div>
@@ -77,6 +83,7 @@ export default function SchoolsPage() {
                 <th>Plan</th>
                 <th>Status</th>
                 <th>Created</th>
+                <th>Renewal</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -110,10 +117,16 @@ export default function SchoolsPage() {
                     </span>
                   </td>
                   <td style={{ color: '#64748b', fontSize: 13 }}>{school.createdDate}</td>
+                  <td style={{ color: '#64748b', fontSize: 13 }}>{school.renewalDate}</td>
                   <td>
                     <div style={{ display: 'flex', gap: 2 }}>
                       <button className="btn-icon" title="View" onClick={() => setViewSchool(school)}><Icon.Eye /></button>
                       <button className="btn-icon" title="Edit"><Icon.Edit /></button>
+                      {school.status === 'Suspended' ? (
+                        <button className="btn-icon" title="Activate" style={{ color: '#16a34a' }} onClick={() => toggleStatus(school)}><Icon.Check /></button>
+                      ) : (
+                        <button className="btn-icon" title="Suspend" style={{ color: '#dc2626' }} onClick={() => toggleStatus(school)}><Icon.AlertTriangle /></button>
+                      )}
                       <button className="btn-icon" title="Delete" style={{ color: '#dc2626' }} onClick={() => setDeleteConfirm(school)}><Icon.Trash /></button>
                     </div>
                   </td>
@@ -121,7 +134,7 @@ export default function SchoolsPage() {
               ))}
               {paginated.length === 0 && (
                 <tr>
-                  <td colSpan={8} style={{ textAlign: 'center', padding: '48px 16px', color: '#94a3b8' }}>
+                  <td colSpan={9} style={{ textAlign: 'center', padding: '48px 16px', color: '#94a3b8' }}>
                     <div style={{ fontSize: 28, marginBottom: 8 }}>🏫</div>
                     <div style={{ fontWeight: 500 }}>No schools found</div>
                   </td>
@@ -148,33 +161,100 @@ export default function SchoolsPage() {
       </div>
 
       {/* View School Modal */}
-      <Modal open={!!viewSchool} onClose={() => setViewSchool(null)} title="School Details">
+      <Modal open={!!viewSchool} onClose={() => setViewSchool(null)} title="School Details" size="lg"
+        footer={
+          <>
+            <button className="btn-secondary" onClick={() => setViewSchool(null)}>Close</button>
+            <button className="btn-secondary"><Icon.Edit /> Platform-level edit</button>
+            {viewSchool?.status === 'Suspended'
+              ? <button className="btn-primary" onClick={() => { if (viewSchool) toggleStatus(viewSchool); setViewSchool(null) }}>Activate</button>
+              : <button className="btn-danger" style={{ background: '#dc2626', color: 'white', padding: '9px 16px', borderRadius: 8, fontWeight: 600 }} onClick={() => { if (viewSchool) toggleStatus(viewSchool); setViewSchool(null) }}>Suspend</button>}
+          </>
+        }
+      >
         {viewSchool && (
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20, padding: '16px', background: '#f8fafc', borderRadius: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18, padding: '16px', background: '#f8fafc', borderRadius: 10 }}>
               <div className="avatar" style={{ width: 52, height: 52, fontSize: 18 }}>
                 {viewSchool.name.split(' ').map(w => w[0]).join('').slice(0, 2)}
               </div>
               <div>
                 <div style={{ fontWeight: 700, fontSize: 16, color: '#0f172a' }}>{viewSchool.name}</div>
-                <span className={`badge ${viewSchool.status === 'Active' ? 'badge-green' : 'badge-amber'}`} style={{ marginTop: 4 }}>{viewSchool.status}</span>
+                <span className={`badge ${viewSchool.status === 'Active' ? 'badge-green' : viewSchool.status === 'Suspended' ? 'badge-red' : 'badge-amber'}`} style={{ marginTop: 4 }}>{viewSchool.status}</span>
+              </div>
+              <div style={{ marginLeft: 'auto', textAlign: 'right', fontSize: 13, color: '#64748b' }}>
+                <div>{viewSchool.plan} · ${planPrice(viewSchool.plan).toLocaleString()}/mo</div>
+                <div>Renews {viewSchool.renewalDate}</div>
               </div>
             </div>
+
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>School Profile</div>
             {[
               { label: 'Admin', value: viewSchool.admin },
               { label: 'Email', value: viewSchool.email },
               { label: 'Phone', value: viewSchool.phone },
               { label: 'Address', value: viewSchool.address },
-              { label: 'Plan', value: viewSchool.plan },
-              { label: 'Students', value: viewSchool.students.toLocaleString() },
-              { label: 'Teachers', value: viewSchool.teachers.toString() },
               { label: 'Created', value: viewSchool.createdDate },
+              { label: 'Renewal', value: viewSchool.renewalDate },
             ].map(item => (
               <div key={item.label} style={{ display: 'flex', gap: 12, padding: '8px 0', borderBottom: '1px solid #f1f5f9', fontSize: 14 }}>
-                <span style={{ width: 90, color: '#64748b', fontWeight: 500, flexShrink: 0 }}>{item.label}</span>
+                <span style={{ width: 100, color: '#64748b', fontWeight: 500, flexShrink: 0 }}>{item.label}</span>
                 <span style={{ color: '#1e293b' }}>{item.value}</span>
               </div>
             ))}
+
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '18px 0 8px' }}>Usage</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 6 }}>
+              {[
+                { label: 'Students', value: viewSchool.students.toLocaleString() },
+                { label: 'Teachers', value: viewSchool.teachers.toLocaleString() },
+                { label: 'Parents', value: Math.round(viewSchool.students * 0.58).toLocaleString() },
+                { label: 'Storage', value: `${Math.min(98, Math.round(viewSchool.students / 14))}% of 10 GB` },
+              ].map(s => (
+                <div key={s.label} style={{ background: 'var(--bg-muted)', borderRadius: 10, padding: '12px 14px' }}>
+                  <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase' }}>{s.label}</div>
+                  <div style={{ fontWeight: 700, marginTop: 3 }}>{s.value}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ flex: 1, height: 6, background: '#f1f5f9', borderRadius: 10, overflow: 'hidden' }}>
+                <div style={{ width: `${Math.min(98, Math.round(viewSchool.students / 14))}%`, height: '100%', background: '#2563eb', borderRadius: 10 }} />
+              </div>
+              <span style={{ fontSize: 12, color: '#64748b' }}>{Math.min(98, Math.round(viewSchool.students / 14))}% used</span>
+            </div>
+
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '18px 0 8px' }}>Billing History</div>
+            <div className="table-wrap">
+              <table className="data-table">
+                <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead>
+                <tbody>
+                  {(PLATFORM_PAYMENTS.filter(p => p.school === viewSchool.name).length > 0 ? PLATFORM_PAYMENTS.filter(p => p.school === viewSchool.name) : [
+                    { date: viewSchool.renewalDate, plan: viewSchool.plan, amount: planPrice(viewSchool.plan), status: viewSchool.status === 'Suspended' ? 'Failed' : 'Paid' },
+                    { date: '2026-08-01', plan: viewSchool.plan, amount: planPrice(viewSchool.plan), status: 'Paid' },
+                  ]).map((p, i) => (
+                    <tr key={i}>
+                      <td style={{ fontSize: 13 }}>{p.date}</td>
+                      <td style={{ fontSize: 13 }}>{viewSchool.plan} subscription</td>
+                      <td style={{ fontSize: 13, fontWeight: 600 }}>${Number(p.amount).toLocaleString()}</td>
+                      <td><span className={`badge ${String(p.status) === 'Paid' ? 'badge-green' : String(p.status) === 'Failed' ? 'badge-red' : 'badge-amber'}`}>{String(p.status)}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '18px 0 8px' }}>Recent Activity</div>
+            {AUDIT_LOGS.filter(l => l.school === viewSchool.name).slice(0, 3).map(l => (
+              <div key={l.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid #f1f5f9', fontSize: 13 }}>
+                <span className="badge badge-gray">{l.module}</span>
+                <span style={{ color: '#1e293b' }}>{l.user} — {l.action}</span>
+                <span style={{ marginLeft: 'auto', color: '#94a3b8', fontSize: 12 }}>{l.date}</span>
+              </div>
+            ))}
+            {AUDIT_LOGS.filter(l => l.school === viewSchool.name).length === 0 && (
+              <div style={{ fontSize: 13, color: '#94a3b8', padding: '8px 0' }}>No recent activity recorded.</div>
+            )}
           </div>
         )}
       </Modal>

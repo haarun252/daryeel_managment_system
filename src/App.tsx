@@ -7,17 +7,24 @@ import LoginPage from './pages/LoginPage'
 import SuperAdminDashboard from './pages/superadmin/SuperAdminDashboard'
 import SchoolsPage from './pages/superadmin/SchoolsPage'
 import SubscriptionsPage from './pages/superadmin/SubscriptionsPage'
-import { AdminsPage, UsersPage, PlatformPaymentsPage, RevenuePage, AuditLogsPage, SupportPage, RolesPage, ActivityLogsPage, PlatformAnnouncementsPage, PlatformReportsPage } from './pages/superadmin/PlatformPages'
+import { AdminsPage, UsersPage, PlatformPaymentsPage, RevenuePage, AuditLogsPage, SupportPage, RolesPage, ActivityLogsPage, PlatformAnnouncementsPage, PlatformReportsPage, SystemAnalyticsPage } from './pages/superadmin/PlatformPages'
 
 import SchoolDashboard from './pages/schooladmin/SchoolDashboard'
 import StudentsPage from './pages/schooladmin/StudentsPage'
 import TeachersPage from './pages/schooladmin/TeachersPage'
 import AttendancePage from './pages/schooladmin/AttendancePage'
 import FeesPage from './pages/schooladmin/FeesPage'
+import TransportPage from './pages/schooladmin/TransportPage'
+import StaffPage from './pages/schooladmin/StaffPage'
+import IncomePage from './pages/schooladmin/IncomePage'
+import FinancePage from './pages/schooladmin/FinancePage'
 import { ParentsPage, ClassesPage, SectionsPage, SubjectsPage, InvoicesPage, SchoolPaymentsPage, ExpensesPage } from './pages/schooladmin/EntityPages'
 
 import TeacherDashboard from './pages/teacher/TeacherDashboard'
 import TeacherAttendance from './pages/teacher/TeacherAttendance'
+import TeacherTimetable from './pages/teacher/TimetablePage'
+import { TeacherClassesPage, TeacherStudentsPage } from './pages/teacher/TeacherClassesStudents'
+import { TeacherExamsPage, TeacherReportsPage } from './pages/teacher/TeacherExamsReports'
 import ParentDashboard from './pages/parent/ParentDashboard'
 import ChildrenPage from './pages/parent/ChildrenPage'
 
@@ -34,20 +41,21 @@ const DEFAULT_PAGES: Record<string, string> = {
 }
 
 const PAGE_TITLES: Record<string, string> = {
-  'sa-dashboard': 'Dashboard',
+  'sa-dashboard': 'Overview',
   'sa-schools': 'Schools / Tenants',
   'sa-admins': 'School Admins',
   'sa-users': 'Users',
   'sa-plans': 'Subscription Plans',
   'sa-subscriptions': 'Subscriptions',
   'sa-payments': 'Payments',
-  'sa-revenue': 'Revenue',
+  'sa-revenue': 'Platform Revenue',
+  'sa-analytics': 'System Analytics',
   'sa-reports': 'Reports',
   'sa-notifications': 'Notifications',
   'sa-announcements': 'Platform Announcements',
   'sa-support': 'Support',
   'sa-activity': 'Activity Logs',
-  'sa-settings': 'Settings',
+  'sa-settings': 'Platform Settings',
   'sa-roles': 'Roles & Permissions',
   'sa-audit': 'Audit Logs',
   'sa-profile': 'Profile',
@@ -56,44 +64,30 @@ const PAGE_TITLES: Record<string, string> = {
   'ad-teachers': 'Teachers',
   'ad-parents': 'Parents',
   'ad-classes': 'Classes',
-  'ad-sections': 'Sections',
   'ad-subjects': 'Subjects',
   'ad-attendance': 'Attendance',
   'ad-timetable': 'Timetable',
-  'ad-assignments': 'Assignments',
-  'ad-exams': 'Exams',
-  'ad-results': 'Results',
-  'ad-reportcards': 'Report Cards',
+  'ad-exams': 'Exams & Marks',
+  'ad-reports': 'Reports',
+  'ad-transport': 'Transport',
+  'ad-staff': 'Staff',
   'ad-fees': 'Fees',
   'ad-payments': 'Payments',
-  'ad-invoices': 'Invoices',
+  'ad-income': 'Income',
   'ad-expenses': 'Expenses',
-  'ad-announcements': 'Announcements',
-  'ad-events': 'Events',
-  'ad-messages': 'Messages',
+  'ad-finance': 'Finance',
   'ad-notifications': 'Notifications',
-  'ad-reports': 'Reports',
-  'ad-reports-students': 'Student Reports',
-  'ad-reports-attendance': 'Attendance Reports',
-  'ad-reports-fees': 'Fee Reports',
-  'ad-reports-academic': 'Academic Reports',
   'ad-settings': 'School Settings',
-  'ad-settings-academic': 'Academic Settings',
-  'ad-settings-notifications': 'Notification Settings',
   'ad-profile': 'Profile',
   'te-dashboard': 'Dashboard',
   'te-classes': 'My Classes',
   'te-students': 'My Students',
   'te-attendance': 'Attendance',
-  'te-assignments': 'Assignments',
-  'te-exams': 'Exams',
-  'te-results': 'Results',
-  'te-timetable': 'Timetable',
-  'te-announcements': 'Announcements',
-  'te-messages': 'Messages',
+  'te-timetable': 'My Timetable',
+  'te-exams': 'Exams & Marks',
+  'te-reports': 'Student Reports',
   'te-notifications': 'Notifications',
-  'te-profile': 'Profile',
-  'te-settings': 'Settings',
+  'te-profile': 'My Profile',
   'pa-dashboard': 'Dashboard',
   'pa-children': 'My Children',
   'pa-attendance': 'Attendance',
@@ -102,6 +96,7 @@ const PAGE_TITLES: Record<string, string> = {
   'pa-results': 'Results',
   'pa-timetable': 'Timetable',
   'pa-fees': 'Fees',
+  'pa-reports': 'Reports',
   'pa-payments': 'Payments',
   'pa-invoices': 'Invoices',
   'pa-announcements': 'Announcements',
@@ -127,8 +122,9 @@ function AppContent({ user, onLogout }: { user: User; onLogout: () => void }) {
       case 'sa-subscriptions': return <SubscriptionsPage />
       case 'sa-payments': return <PlatformPaymentsPage />
       case 'sa-revenue': return <RevenuePage />
+      case 'sa-analytics': return <SystemAnalyticsPage />
       case 'sa-reports': return <PlatformReportsPage />
-      case 'sa-notifications': return <NotificationsPage />
+      case 'sa-notifications': return <NotificationsPage variant="platform" />
       case 'sa-announcements': return <PlatformAnnouncementsPage />
       case 'sa-support': return <SupportPage />
       case 'sa-activity': return <ActivityLogsPage />
@@ -137,59 +133,46 @@ function AppContent({ user, onLogout }: { user: User; onLogout: () => void }) {
       case 'sa-audit': return <AuditLogsPage />
       case 'sa-profile': return <ProfilePage />
 
-      case 'ad-dashboard': return <SchoolDashboard onNavigate={navigate} />
+case 'ad-dashboard': return <SchoolDashboard onNavigate={navigate} />
       case 'ad-students': return <StudentsPage />
       case 'ad-teachers': return <TeachersPage />
       case 'ad-parents': return <ParentsPage />
       case 'ad-classes': return <ClassesPage />
-      case 'ad-sections': return <SectionsPage />
       case 'ad-subjects': return <SubjectsPage />
       case 'ad-attendance': return <AttendancePage />
       case 'ad-timetable': return <TimetablePage />
-      case 'ad-assignments': return <AssignmentsPage />
       case 'ad-exams': return <ExamsPage />
-      case 'ad-results': return <ResultsPage />
-      case 'ad-reportcards': return <ReportCardsPage />
+      case 'ad-reports': return <ReportsPage />
+      case 'ad-transport': return <TransportPage />
+      case 'ad-staff': return <StaffPage />
       case 'ad-fees': return <FeesPage />
       case 'ad-payments': return <SchoolPaymentsPage />
-      case 'ad-invoices': return <InvoicesPage />
+      case 'ad-income': return <IncomePage />
       case 'ad-expenses': return <ExpensesPage />
-      case 'ad-announcements': return <AnnouncementsPage />
-      case 'ad-events': return <EventsPage />
-      case 'ad-messages': return <MessagesPage />
+      case 'ad-finance': return <FinancePage />
       case 'ad-notifications': return <NotificationsPage />
-      case 'ad-reports': return <ReportsPage />
-      case 'ad-reports-students': return <ReportsPage preset="Student List" />
-      case 'ad-reports-attendance': return <ReportsPage preset="Daily Attendance" />
-      case 'ad-reports-fees': return <ReportsPage preset="Fee Collection" />
-      case 'ad-reports-academic': return <ReportsPage preset="Exam Results" />
       case 'ad-settings': return <SettingsPage key="ad-settings" variant="school" />
-      case 'ad-settings-academic': return <SettingsPage key="ad-academic" variant="school" initialTab="Academic" />
-      case 'ad-settings-notifications': return <SettingsPage key="ad-notif" variant="school" initialTab="Notifications" />
       case 'ad-profile': return <ProfilePage />
 
       case 'te-dashboard': return <TeacherDashboard onNavigate={navigate} />
-      case 'te-classes': return <ClassesPage canManage={false} />
-      case 'te-students': return <StudentsPage canManage={false} />
+      case 'te-classes': return <TeacherClassesPage />
+      case 'te-students': return <TeacherStudentsPage />
       case 'te-attendance': return <TeacherAttendance />
-      case 'te-assignments': return <AssignmentsPage canCreate />
-      case 'te-exams': return <ExamsPage />
-      case 'te-results': return <ResultsPage />
-      case 'te-timetable': return <TimetablePage />
-      case 'te-announcements': return <AnnouncementsPage canManage={false} />
-      case 'te-messages': return <MessagesPage />
-      case 'te-notifications': return <NotificationsPage />
+      case 'te-timetable': return <TeacherTimetable />
+      case 'te-exams': return <TeacherExamsPage />
+      case 'te-reports': return <TeacherReportsPage />
+      case 'te-notifications': return <NotificationsPage variant="teacher" />
       case 'te-profile': return <ProfilePage />
-      case 'te-settings': return <SettingsPage variant="user" />
 
       case 'pa-dashboard': return <ParentDashboard onNavigate={navigate} />
       case 'pa-children': return <ChildrenPage />
-      case 'pa-attendance': return <AttendancePage />
+      case 'pa-attendance': return <AttendancePage variant="view" />
       case 'pa-assignments': return <AssignmentsPage canCreate={false} />
-      case 'pa-exams': return <ExamsPage />
+      case 'pa-exams': return <ExamsPage canManage={false} />
       case 'pa-results': return <ResultsPage />
-      case 'pa-timetable': return <TimetablePage />
-      case 'pa-fees': return <FeesPage />
+      case 'pa-timetable': return <TimetablePage canManage={false} />
+      case 'pa-fees': return <FeesPage canManage={false} />
+      case 'pa-reports': return <ReportsPage variant="parent" />
       case 'pa-payments': return <SchoolPaymentsPage />
       case 'pa-invoices': return <InvoicesPage />
       case 'pa-announcements': return <AnnouncementsPage canManage={false} />

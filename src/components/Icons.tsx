@@ -451,4 +451,34 @@ export const Icon = {
       <path d="M2 11.5L9 15.5 16 11.5"/>
     </svg>
   ),
+  Bus: () => (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="3.5" width="14" height="8.5" rx="2"/>
+      <path d="M2 8h14M5 3.5V2h8v1.5M5 12v1M13 12v1"/>
+      <circle cx="5.5" cy="12.5" r="1.1"/>
+      <circle cx="12.5" cy="12.5" r="1.1"/>
+      <path d="M5 5h2M11 5h2"/>
+    </svg>
+  ),
+  Worker: () => (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 8h10v6.5a1.5 1.5 0 01-1.5 1.5h-7A1.5 1.5 0 014 14.5V8z"/>
+      <path d="M6.5 5.5V5a2.5 2.5 0 015 0v.5"/>
+      <path d="M4 8a2 2 0 01-2-2c0-1.1.9-2 2-2M14 8a2 2 0 002-2c0-1.1-.9-2-2-2"/>
+      <path d="M7 11h.01M11 11h.01"/>
+    </svg>
+  ),
+  Receipt: () => (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 1.5v13l2-1.2 2 1.2 2-1.2 2 1.2 2-1.2V1.5H3z"/>
+      <path d="M6 5.5h4M6 8h4M6 10.5h2.5"/>
+    </svg>
+  ),
+  Route: () => (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="4" cy="4" r="2"/>
+      <circle cx="12" cy="12" r="2"/>
+      <path d="M6 4h4a3 3 0 010 6H6a3 3 0 000 6"/>
+    </svg>
+  ),
 }

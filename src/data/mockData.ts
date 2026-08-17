@@ -25,9 +25,10 @@ export interface School {
   admin: string
   students: number
   teachers: number
-  plan: 'Basic' | 'Standard' | 'Premium'
+  plan: 'Basic' | 'Standard' | 'Premium' | 'Trial'
   status: 'Active' | 'Inactive' | 'Suspended'
   createdDate: string
+  renewalDate: string
   email: string
   phone: string
   address: string
@@ -36,13 +37,39 @@ export interface School {
 }
 
 export const SCHOOLS: School[] = [
-  { id: 's1', name: 'Green Valley Academy', admin: 'Sarah Mitchell', students: 842, teachers: 48, plan: 'Premium', status: 'Active', createdDate: '2023-03-14', email: 'info@greenvalley.edu', phone: '+1 (555) 201-4400', address: '120 Elm Street, Springfield, IL 62701', website: 'www.greenvalley.edu' },
-  { id: 's2', name: 'Sunrise Kindergarten', admin: 'Rosa Martinez', students: 186, teachers: 18, plan: 'Standard', status: 'Active', createdDate: '2023-11-15', email: 'hello@sunrisekg.edu', phone: '+1 (555) 590-2200', address: '77 Sunrise Blvd, Miami, FL 33101', website: 'www.sunrisekg.edu' },
-  { id: 's3', name: 'Bright Future School', admin: 'Lisa Tanaka', students: 428, teachers: 31, plan: 'Standard', status: 'Active', createdDate: '2024-01-22', email: 'info@brightfuture.edu', phone: '+1 (555) 774-3300', address: '8 Oak Ave, Austin, TX 78701', website: 'www.brightfuture.edu' },
-  { id: 's4', name: 'Al-Noor Academy', admin: 'Ahmed Hassan', students: 1203, teachers: 87, plan: 'Premium', status: 'Active', createdDate: '2022-09-01', email: 'contact@alnoor.edu', phone: '+1 (555) 462-6600', address: '200 Lake Dr, Chicago, IL 60601', website: 'www.alnoor.edu' },
-  { id: 's5', name: 'Riverside Primary School', admin: 'David Osei', students: 364, teachers: 22, plan: 'Basic', status: 'Inactive', createdDate: '2023-06-08', email: 'hello@riverside.edu', phone: '+1 (555) 384-9100', address: '45 River Rd, Portland, OR 97201' },
-  { id: 's6', name: 'Westfield Academy', admin: 'Brian Thompson', students: 510, teachers: 35, plan: 'Premium', status: 'Active', createdDate: '2023-07-30', email: 'info@westfield.edu', phone: '+1 (555) 113-8800', address: '555 West Ave, Seattle, WA 98101' },
-  { id: 's7', name: 'Heritage Christian School', admin: 'Grace Amara', students: 198, teachers: 16, plan: 'Basic', status: 'Suspended', createdDate: '2024-02-10', email: 'contact@heritage.edu', phone: '+1 (555) 667-4400', address: '30 Faith Lane, Dallas, TX 75201' },
+  { id: 's1', name: 'Green Valley Academy', admin: 'Sarah Mitchell', students: 842, teachers: 48, plan: 'Premium', status: 'Active', createdDate: '2023-03-14', renewalDate: '2026-09-01', email: 'info@greenvalley.edu', phone: '+1 (555) 201-4400', address: '120 Elm Street, Springfield, IL 62701', website: 'www.greenvalley.edu' },
+  { id: 's2', name: 'Sunrise Kindergarten', admin: 'Rosa Martinez', students: 186, teachers: 18, plan: 'Standard', status: 'Active', createdDate: '2023-11-15', renewalDate: '2026-09-01', email: 'hello@sunrisekg.edu', phone: '+1 (555) 590-2200', address: '77 Sunrise Blvd, Miami, FL 33101', website: 'www.sunrisekg.edu' },
+  { id: 's3', name: 'Bright Future School', admin: 'Lisa Tanaka', students: 428, teachers: 31, plan: 'Standard', status: 'Active', createdDate: '2024-01-22', renewalDate: '2026-09-03', email: 'info@brightfuture.edu', phone: '+1 (555) 774-3300', address: '8 Oak Ave, Austin, TX 78701', website: 'www.brightfuture.edu' },
+  { id: 's4', name: 'Al-Noor Academy', admin: 'Ahmed Hassan', students: 1203, teachers: 87, plan: 'Premium', status: 'Active', createdDate: '2022-09-01', renewalDate: '2026-09-01', email: 'contact@alnoor.edu', phone: '+1 (555) 462-6600', address: '200 Lake Dr, Chicago, IL 60601', website: 'www.alnoor.edu' },
+  { id: 's5', name: 'Riverside Primary School', admin: 'David Osei', students: 364, teachers: 22, plan: 'Basic', status: 'Inactive', createdDate: '2023-06-08', renewalDate: '2026-08-28', email: 'hello@riverside.edu', phone: '+1 (555) 384-9100', address: '45 River Rd, Portland, OR 97201' },
+  { id: 's6', name: 'Westfield Academy', admin: 'Brian Thompson', students: 510, teachers: 35, plan: 'Premium', status: 'Active', createdDate: '2023-07-30', renewalDate: '2026-09-01', email: 'info@westfield.edu', phone: '+1 (555) 113-8800', address: '555 West Ave, Seattle, WA 98101' },
+  { id: 's7', name: 'Heritage Christian School', admin: 'Grace Amara', students: 198, teachers: 16, plan: 'Basic', status: 'Suspended', createdDate: '2024-02-10', renewalDate: '2026-08-30', email: 'contact@heritage.edu', phone: '+1 (555) 667-4400', address: '30 Faith Lane, Dallas, TX 75201' },
+  { id: 's8', name: 'Little Steps Kindergarten', admin: 'Hana Yusuf', students: 64, teachers: 9, plan: 'Trial', status: 'Active', createdDate: '2026-08-04', renewalDate: '2026-09-04', email: 'hello@littlesteps.edu', phone: '+1 (555) 720-8810', address: '12 Rainbow Lane, Minneapolis, MN 55401', website: 'www.littlesteps.edu' },
+]
+
+export function planPrice(plan: School['plan']) {
+  if (plan === 'Trial') return 0
+  return SUBSCRIPTION_PLANS.find(p => p.name === plan)?.price ?? 0
+}
+
+export const RECENT_REGISTRATIONS = [
+  { id: 'rr1', school: 'Little Steps Kindergarten', admin: 'Hana Yusuf', plan: 'Trial', date: '2026-08-04' },
+  { id: 'rr2', school: 'Bright Future School', admin: 'Lisa Tanaka', plan: 'Standard', date: '2024-01-22' },
+  { id: 'rr3', school: 'Heritage Christian School', admin: 'Grace Amara', plan: 'Basic', date: '2024-02-10' },
+]
+
+export const SCHOOLS_REQUIRING_ATTENTION = [
+  { id: 'at1', school: 'Heritage Christian School', issue: 'Subscription suspended — payment overdue', severity: 'Critical' },
+  { id: 'at2', school: 'Riverside Primary School', issue: 'Renewal due Aug 28 — no payment recorded', severity: 'Warning' },
+  { id: 'at3', school: 'Westfield Academy', issue: 'August platform payment pending', severity: 'Warning' },
+]
+
+export const PLATFORM_ACTIVITY = [
+  { id: 'pa1', time: '09:12', actor: 'Marcus Chen', action: 'Suspended Heritage Christian School', module: 'Tenants' },
+  { id: 'pa2', time: '08:47', actor: 'Ahmed Hassan', action: 'Exported report cards', module: 'Reports' },
+  { id: 'pa3', time: '08:31', actor: 'Hana Yusuf', action: 'Activated trial for Little Steps', module: 'Subscriptions' },
+  { id: 'pa4', time: '08:05', actor: 'James Okonkwo', action: 'Saved Grade 7A attendance', module: 'Attendance' },
+  { id: 'pa5', time: '07:52', actor: 'Rosa Martinez', action: 'Recorded fee payment', module: 'Fees' },
 ]
 
 export interface Student {
@@ -97,7 +124,7 @@ export interface Teacher {
   dob: string
   address: string
   joinDate: string
-  status: 'Active' | 'On Leave' | 'Inactive'
+  status: 'Active' | 'On Leave' | 'Inactive' | 'Invited'
   qualification: string
 }
 
@@ -107,6 +134,7 @@ export const TEACHERS: Teacher[] = [
   { id: 't3', name: 'Carlos Mendez', firstName: 'Carlos', lastName: 'Mendez', teacherId: 'GVA-T-003', subjects: ['Science', 'Biology'], classes: ['Grade 8A', 'Grade 9C'], email: 'c.mendez@gva.edu', phone: '+1 (555) 201-3003', gender: 'Male', dob: '1984-11-21', address: '19 Faculty Lane, Springfield', joinDate: '2022-01-10', status: 'Active', qualification: 'M.Sc Biology' },
   { id: 't4', name: 'Fatima Al-Rashid', firstName: 'Fatima', lastName: 'Al-Rashid', teacherId: 'GVA-T-004', subjects: ['History', 'Social Studies'], classes: ['Grade 6B', 'Grade 7C'], email: 'f.alrashid@gva.edu', phone: '+1 (555) 201-3004', gender: 'Female', dob: '1988-06-18', address: '4 Faculty Lane, Springfield', joinDate: '2019-09-01', status: 'On Leave', qualification: 'B.A History' },
   { id: 't5', name: 'Kevin Park', firstName: 'Kevin', lastName: 'Park', teacherId: 'GVA-T-005', subjects: ['Computer Science', 'ICT'], classes: ['Grade 9A', 'Grade 9B'], email: 'k.park@gva.edu', phone: '+1 (555) 201-3005', gender: 'Male', dob: '1992-01-30', address: '31 Faculty Lane, Springfield', joinDate: '2023-02-14', status: 'Active', qualification: 'B.Tech Computer Science' },
+  { id: 't6', name: 'Nadia Ibrahim', firstName: 'Nadia', lastName: 'Ibrahim', teacherId: 'GVA-T-006', subjects: ['Arabic', 'Islamic Studies'], classes: ['Grade 6A'], email: 'n.ibrahim@gva.edu', phone: '+1 (555) 201-3006', gender: 'Female', dob: '1994-07-09', address: '16 Faculty Lane, Springfield', joinDate: '—', status: 'Invited', qualification: 'B.A Arabic Studies' },
 ]
 
 export interface Parent {
@@ -118,16 +146,19 @@ export interface Parent {
   address: string
   occupation: string
   children: string[]
-  status: 'Active' | 'Inactive'
+  status: 'Active' | 'Invited' | 'Unverified'
+  lastActivity?: string
 }
 
 export const PARENTS: Parent[] = [
-  { id: 'pr1', name: 'Priya Sharma', relationship: 'Mother', phone: '+1 (555) 100-2001', email: 'priya.sharma@email.com', address: '14 Maple Drive, Springfield', occupation: 'Software Engineer', children: ['Ethan Williams', 'Mason Lee'], status: 'Active' },
-  { id: 'pr2', name: 'Marcus Johnson', relationship: 'Father', phone: '+1 (555) 100-2002', email: 'marcus.j@email.com', address: '88 Pine Street, Springfield', occupation: 'Physician', children: ['Aisha Johnson'], status: 'Active' },
-  { id: 'pr3', name: 'Elena Garcia', relationship: 'Mother', phone: '+1 (555) 100-2003', email: 'elena.g@email.com', address: '201 River Lane, Springfield', occupation: 'Accountant', children: ['Noah Garcia'], status: 'Active' },
-  { id: 'pr4', name: 'Wei Chen', relationship: 'Father', phone: '+1 (555) 100-2004', email: 'wei.chen@email.com', address: '9 Cedar Court, Springfield', occupation: 'Architect', children: ['Lily Chen'], status: 'Active' },
-  { id: 'pr5', name: 'Rajiv Patel', relationship: 'Father', phone: '+1 (555) 100-2005', email: 'rajiv.p@email.com', address: '55 Oak Boulevard, Springfield', occupation: 'Business Owner', children: ['Oliver Patel'], status: 'Active' },
-  { id: 'pr6', name: 'Carmen Rodriguez', relationship: 'Mother', phone: '+1 (555) 100-2006', email: 'carmen.r@email.com', address: '310 Birch Ave, Springfield', occupation: 'Teacher', children: ['Sofia Rodriguez'], status: 'Active' },
+  { id: 'pr1', name: 'Priya Sharma', relationship: 'Mother', phone: '+1 (555) 100-2001', email: 'priya.sharma@email.com', address: '14 Maple Drive, Springfield', occupation: 'Software Engineer', children: ['Ethan Williams', 'Mason Lee'], status: 'Active', lastActivity: '2026-08-16 09:14' },
+  { id: 'pr2', name: 'Marcus Johnson', relationship: 'Father', phone: '+1 (555) 100-2002', email: 'marcus.j@email.com', address: '88 Pine Street, Springfield', occupation: 'Physician', children: ['Aisha Johnson'], status: 'Active', lastActivity: '2026-08-15 18:42' },
+  { id: 'pr3', name: 'Elena Garcia', relationship: 'Mother', phone: '+1 (555) 100-2003', email: 'elena.g@email.com', address: '201 River Lane, Springfield', occupation: 'Accountant', children: ['Noah Garcia'], status: 'Active', lastActivity: '2026-08-14 12:05' },
+  { id: 'pr4', name: 'Wei Chen', relationship: 'Father', phone: '+1 (555) 100-2004', email: 'wei.chen@email.com', address: '9 Cedar Court, Springfield', occupation: 'Architect', children: ['Lily Chen'], status: 'Active', lastActivity: '2026-08-13 20:31' },
+  { id: 'pr5', name: 'Rajiv Patel', relationship: 'Father', phone: '+1 (555) 100-2005', email: 'rajiv.p@email.com', address: '55 Oak Boulevard, Springfield', occupation: 'Business Owner', children: ['Oliver Patel'], status: 'Active', lastActivity: '2026-08-12 10:15' },
+  { id: 'pr6', name: 'Carmen Rodriguez', relationship: 'Mother', phone: '+1 (555) 100-2006', email: 'carmen.r@email.com', address: '310 Birch Ave, Springfield', occupation: 'Teacher', children: ['Sofia Rodriguez'], status: 'Active', lastActivity: '2026-08-11 07:58' },
+  { id: 'pr7', name: 'Amara Diallo', relationship: 'Mother', phone: '+1 (555) 720-8811', email: 'a.diallo@email.com', address: '12 Rainbow Lane, Minneapolis', occupation: 'Nurse', children: [], status: 'Invited' },
+  { id: 'pr8', name: 'Omar Farouk', relationship: 'Guardian', phone: '+1 (555) 100-2009', email: 'o.farouk@email.com', address: '30 School Road, Springfield', occupation: 'Engineer', children: ['Noah Garcia'], status: 'Unverified', lastActivity: '—' },
 ]
 
 export interface SchoolClass {
@@ -160,13 +191,14 @@ export const SECTIONS = [
 ]
 
 export const SUBJECTS = [
-  { id: 'sub1', name: 'Mathematics', code: 'MATH', teacher: 'James Okonkwo', classes: 4, type: 'Core' },
-  { id: 'sub2', name: 'English', code: 'ENG', teacher: 'Angela Morrison', classes: 4, type: 'Core' },
-  { id: 'sub3', name: 'Science', code: 'SCI', teacher: 'Carlos Mendez', classes: 3, type: 'Core' },
-  { id: 'sub4', name: 'History', code: 'HIST', teacher: 'Fatima Al-Rashid', classes: 3, type: 'Core' },
-  { id: 'sub5', name: 'Computer Science', code: 'CS', teacher: 'Kevin Park', classes: 2, type: 'Elective' },
-  { id: 'sub6', name: 'Physics', code: 'PHY', teacher: 'James Okonkwo', classes: 2, type: 'Elective' },
-  { id: 'sub7', name: 'Literature', code: 'LIT', teacher: 'Angela Morrison', classes: 2, type: 'Elective' },
+  { id: 'sub1', name: 'Mathematics', code: 'MATH', teacher: 'James Okonkwo', classes: 4, type: 'Core', status: 'Active' },
+  { id: 'sub2', name: 'English', code: 'ENG', teacher: 'Angela Morrison', classes: 4, type: 'Core', status: 'Active' },
+  { id: 'sub3', name: 'Science', code: 'SCI', teacher: 'Carlos Mendez', classes: 3, type: 'Core', status: 'Active' },
+  { id: 'sub4', name: 'History', code: 'HIST', teacher: 'Fatima Al-Rashid', classes: 3, type: 'Core', status: 'Active' },
+  { id: 'sub5', name: 'Computer Science', code: 'CS', teacher: 'Kevin Park', classes: 2, type: 'Elective', status: 'Active' },
+  { id: 'sub6', name: 'Physics', code: 'PHY', teacher: 'James Okonkwo', classes: 2, type: 'Elective', status: 'Active' },
+  { id: 'sub7', name: 'Literature', code: 'LIT', teacher: 'Angela Morrison', classes: 2, type: 'Elective', status: 'Active' },
+  { id: 'sub8', name: 'French', code: 'FR', teacher: '—', classes: 1, type: 'Elective', status: 'Archived' },
 ]
 
 export interface AttendanceRecord {
@@ -198,36 +230,43 @@ export interface FeeRecord {
   amount: number
   dueDate: string
   paidDate?: string
-  status: 'Paid' | 'Pending' | 'Overdue'
+  status: 'Paid' | 'Pending' | 'Overdue' | 'Partial'
   invoiceId: string
   discount?: number
+  paid?: number
 }
 
 export const FEES: FeeRecord[] = [
-  { id: 'f1', studentName: 'Ethan Williams', class: 'Grade 7A', feeType: 'Tuition', amount: 1200, dueDate: '2026-08-01', paidDate: '2026-07-28', status: 'Paid', invoiceId: 'INV-2026-001', discount: 0 },
-  { id: 'f2', studentName: 'Aisha Johnson', class: 'Grade 7A', feeType: 'Tuition', amount: 1200, dueDate: '2026-08-01', paidDate: '2026-08-05', status: 'Paid', invoiceId: 'INV-2026-002' },
-  { id: 'f3', studentName: 'Noah Garcia', class: 'Grade 8B', feeType: 'Tuition', amount: 1350, dueDate: '2026-08-01', status: 'Pending', invoiceId: 'INV-2026-003' },
-  { id: 'f4', studentName: 'Lily Chen', class: 'Grade 6A', feeType: 'Tuition', amount: 1100, dueDate: '2026-08-01', paidDate: '2026-08-01', status: 'Paid', invoiceId: 'INV-2026-004' },
-  { id: 'f5', studentName: 'Oliver Patel', class: 'Grade 9C', feeType: 'Tuition', amount: 1400, dueDate: '2026-07-01', status: 'Overdue', invoiceId: 'INV-2026-005' },
-  { id: 'f6', studentName: 'Sofia Rodriguez', class: 'Grade 7B', feeType: 'Activities', amount: 250, dueDate: '2026-08-10', paidDate: '2026-08-09', status: 'Paid', invoiceId: 'INV-2026-006' },
-  { id: 'f7', studentName: 'Liam Thompson', class: 'Grade 8A', feeType: 'Tuition', amount: 1350, dueDate: '2026-08-01', status: 'Pending', invoiceId: 'INV-2026-007' },
-  { id: 'f8', studentName: 'Mason Lee', class: 'Grade 9A', feeType: 'Lab Fee', amount: 200, dueDate: '2026-08-15', paidDate: '2026-08-14', status: 'Paid', invoiceId: 'INV-2026-008' },
+  { id: 'f1', studentName: 'Ethan Williams', class: 'Grade 7A', feeType: 'Tuition', amount: 1200, dueDate: '2026-08-01', paidDate: '2026-07-28', status: 'Paid', invoiceId: 'INV-2026-001', discount: 0, paid: 1200 },
+  { id: 'f2', studentName: 'Aisha Johnson', class: 'Grade 7A', feeType: 'Tuition', amount: 1200, dueDate: '2026-08-01', paidDate: '2026-08-05', status: 'Paid', invoiceId: 'INV-2026-002', paid: 1200 },
+  { id: 'f3', studentName: 'Noah Garcia', class: 'Grade 8B', feeType: 'Tuition', amount: 1350, dueDate: '2026-08-01', status: 'Partial', invoiceId: 'INV-2026-003', paid: 800 },
+  { id: 'f4', studentName: 'Lily Chen', class: 'Grade 6A', feeType: 'Tuition', amount: 1100, dueDate: '2026-08-01', paidDate: '2026-08-01', status: 'Paid', invoiceId: 'INV-2026-004', paid: 1100 },
+  { id: 'f5', studentName: 'Oliver Patel', class: 'Grade 9C', feeType: 'Tuition', amount: 1400, dueDate: '2026-07-01', status: 'Partial', invoiceId: 'INV-2026-005', paid: 600 },
+  { id: 'f6', studentName: 'Sofia Rodriguez', class: 'Grade 7B', feeType: 'Activities', amount: 250, dueDate: '2026-08-10', paidDate: '2026-08-09', status: 'Paid', invoiceId: 'INV-2026-006', paid: 250 },
+  { id: 'f7', studentName: 'Liam Thompson', class: 'Grade 8A', feeType: 'Tuition', amount: 1350, dueDate: '2026-08-01', status: 'Pending', invoiceId: 'INV-2026-007', paid: 0 },
+  { id: 'f8', studentName: 'Mason Lee', class: 'Grade 9A', feeType: 'Lab Fee', amount: 200, dueDate: '2026-08-15', paidDate: '2026-08-14', status: 'Paid', invoiceId: 'INV-2026-008', paid: 200 },
+  { id: 'f9', studentName: 'Zara Ahmed', class: 'Grade 6B', feeType: 'Tuition', amount: 1100, dueDate: '2026-08-01', status: 'Overdue', invoiceId: 'INV-2026-009', paid: 0 },
 ]
 
 export const PAYMENTS = [
-  { id: 'pay1', studentName: 'Ethan Williams', invoiceId: 'INV-2026-001', amount: 1200, method: 'Bank', date: '2026-07-28', reference: 'TXN-88421', status: 'Completed' },
-  { id: 'pay2', studentName: 'Aisha Johnson', invoiceId: 'INV-2026-002', amount: 1200, method: 'Card', date: '2026-08-05', reference: 'TXN-88490', status: 'Completed' },
-  { id: 'pay3', studentName: 'Lily Chen', invoiceId: 'INV-2026-004', amount: 1100, method: 'Mobile Money', date: '2026-08-01', reference: 'TXN-88512', status: 'Completed' },
-  { id: 'pay4', studentName: 'Sofia Rodriguez', invoiceId: 'INV-2026-006', amount: 250, method: 'Cash', date: '2026-08-09', reference: 'TXN-88601', status: 'Completed' },
-  { id: 'pay5', studentName: 'Mason Lee', invoiceId: 'INV-2026-008', amount: 200, method: 'Bank', date: '2026-08-14', reference: 'TXN-88688', status: 'Completed' },
+  { id: 'pay1', studentName: 'Ethan Williams', invoiceId: 'INV-2026-001', amount: 1200, method: 'Bank', date: '2026-07-28', reference: 'TXN-88421', receipt: 'RCT-2026-0041', status: 'Completed', recordedBy: 'Sarah Mitchell' },
+  { id: 'pay2', studentName: 'Aisha Johnson', invoiceId: 'INV-2026-002', amount: 1200, method: 'Card', date: '2026-08-05', reference: 'TXN-88490', receipt: 'RCT-2026-0042', status: 'Completed', recordedBy: 'Tom Ochieng' },
+  { id: 'pay3', studentName: 'Lily Chen', invoiceId: 'INV-2026-004', amount: 1100, method: 'Mobile Money', date: '2026-08-01', reference: 'TXN-88512', receipt: 'RCT-2026-0043', status: 'Completed', recordedBy: 'Tom Ochieng' },
+  { id: 'pay4', studentName: 'Sofia Rodriguez', invoiceId: 'INV-2026-006', amount: 250, method: 'Cash', date: '2026-08-09', reference: 'TXN-88601', receipt: 'RCT-2026-0044', status: 'Completed', recordedBy: 'Sarah Mitchell' },
+  { id: 'pay5', studentName: 'Mason Lee', invoiceId: 'INV-2026-008', amount: 200, method: 'Bank', date: '2026-08-14', reference: 'TXN-88688', receipt: 'RCT-2026-0045', status: 'Completed', recordedBy: 'Tom Ochieng' },
+  { id: 'pay6', studentName: 'Noah Garcia', invoiceId: 'INV-2026-003', amount: 800, method: 'Mobile Money', date: '2026-08-10', reference: 'TXN-88640', receipt: 'RCT-2026-0046', status: 'Partial', recordedBy: 'Sarah Mitchell' },
 ]
 
 export const EXPENSES = [
-  { id: 'ex1', title: 'Classroom supplies', category: 'Supplies', amount: 840, date: '2026-08-04', paidTo: 'OfficeMart', status: 'Paid' },
-  { id: 'ex2', title: 'Science lab equipment', category: 'Facilities', amount: 2650, date: '2026-08-08', paidTo: 'EduLab Inc', status: 'Paid' },
-  { id: 'ex3', title: 'Sports Day catering', category: 'Events', amount: 1200, date: '2026-08-20', paidTo: 'Valley Catering', status: 'Pending' },
-  { id: 'ex4', title: 'Staff training workshop', category: 'Training', amount: 980, date: '2026-08-12', paidTo: 'TeachWell', status: 'Paid' },
-  { id: 'ex5', title: 'Building maintenance', category: 'Facilities', amount: 3400, date: '2026-08-02', paidTo: 'Springfield Facilities', status: 'Paid' },
+  { id: 'ex1', title: 'Classroom supplies', category: 'Supplies', amount: 840, date: '2026-08-04', paidTo: 'OfficeMart', reference: 'EXP-2026-031', notes: 'Term 1 stationery', status: 'Paid' },
+  { id: 'ex2', title: 'Science lab equipment', category: 'Supplies', amount: 2650, date: '2026-08-08', paidTo: 'EduLab Inc', reference: 'EXP-2026-032', notes: 'Microscope sets', status: 'Paid' },
+  { id: 'ex3', title: 'Sports Day catering', category: 'Food', amount: 1200, date: '2026-08-20', paidTo: 'Valley Catering', reference: 'EXP-2026-033', status: 'Pending' },
+  { id: 'ex4', title: 'Staff training workshop', category: 'Other', amount: 980, date: '2026-08-12', paidTo: 'TeachWell', reference: 'EXP-2026-034', notes: 'Grading policy training', status: 'Paid' },
+  { id: 'ex5', title: 'Building maintenance', category: 'Maintenance', amount: 3400, date: '2026-08-02', paidTo: 'Springfield Facilities', reference: 'EXP-2026-035', notes: 'Roof repair — Block B', status: 'Paid' },
+  { id: 'ex6', title: 'Bus diesel refill', category: 'Bus Fuel', amount: 780, date: '2026-08-11', paidTo: 'GasCo Depot', reference: 'EXP-2026-036', notes: '3 buses', status: 'Paid' },
+  { id: 'ex7', title: 'August electricity bill', category: 'Electricity', amount: 1120, date: '2026-08-07', paidTo: 'City Power', reference: 'EXP-2026-037', status: 'Paid' },
+  { id: 'ex8', title: 'Teacher salary — August', category: 'Teacher Salary', amount: 8200, date: '2026-08-01', paidTo: 'Staff Payroll', reference: 'EXP-2026-038', notes: '48 teachers', status: 'Paid' },
+  { id: 'ex9', title: 'Kitchen supplies', category: 'Food', amount: 640, date: '2026-08-13', paidTo: 'FreshMart', reference: 'EXP-2026-039', status: 'Paid' },
 ]
 
 export const ASSIGNMENTS = [
@@ -302,15 +341,54 @@ export const NOTIFICATIONS = [
   { id: 'n6', category: 'System', title: 'Backup completed', body: 'Nightly school data backup finished successfully', time: '2 days ago', read: true },
 ]
 
+export const PLATFORM_NOTIFICATIONS = [
+  { id: 'pn1', category: 'System', title: 'Scheduled maintenance — Aug 22, 02:00–04:00 UTC', body: 'Platform will be briefly unavailable during the window.', time: '08:30 AM', read: false },
+  { id: 'pn2', category: 'Billing', title: 'Westfield Academy payment pending', body: 'Premium subscription $499 due since Aug 1.', time: 'Yesterday', read: false },
+  { id: 'pn3', category: 'Security', title: 'Suspicious login attempt blocked', body: '203.0.113.40 — admin@riverside.edu', time: 'Yesterday', read: false },
+  { id: 'pn4', category: 'Delivery', title: 'WhatsApp delivery failures — Riverside', body: '18 messages failed in the last hour.', time: '2 days ago', read: true },
+  { id: 'pn5', category: 'Billing', title: 'Heritage Christian School subscription suspended', body: 'Payment overdue — school suspended on Aug 6.', time: '2 days ago', read: true },
+  { id: 'pn6', category: 'System', title: 'Nightly backup completed', body: 'All tenant data backed up successfully.', time: '2 days ago', read: true },
+]
+
+export interface TeacherReport {
+  id: string
+  studentName: string
+  className: string
+  category: 'Academic' | 'Behaviour' | 'Attendance' | 'Achievement' | 'Concern' | 'General'
+  report: string
+  date: string
+  priority: 'Normal' | 'High' | 'Urgent'
+  recipient: 'Parent' | 'Admin' | 'Parent & Admin'
+  status: 'Draft' | 'Submitted'
+}
+
+export const TEACHER_REPORTS: TeacherReport[] = [
+  { id: 'tr1', studentName: 'Ethan Williams', className: 'Grade 7A', category: 'Academic', report: 'Strong performance in algebra; needs more practice with word problems.', date: '2026-08-15', priority: 'Normal', recipient: 'Parent', status: 'Submitted' },
+  { id: 'tr2', studentName: 'Aisha Johnson', className: 'Grade 7A', category: 'Achievement', report: 'Top of class in the latest Mathematics assessment.', date: '2026-08-14', priority: 'High', recipient: 'Parent', status: 'Submitted' },
+  { id: 'tr3', studentName: 'Noah Garcia', className: 'Grade 8B', category: 'Behaviour', report: 'Improved focus in class; encourage continued effort.', date: '2026-08-16', priority: 'Normal', recipient: 'Admin', status: 'Draft' },
+  { id: 'tr4', studentName: 'Ethan Williams', className: 'Grade 7A', category: 'Concern', report: 'Attendance gaps in Physics affecting progress.', date: '2026-08-13', priority: 'Urgent', recipient: 'Parent & Admin', status: 'Submitted' },
+  { id: 'tr5', studentName: 'Aisha Johnson', className: 'Grade 7A', category: 'General', report: 'Positive participation in group activities this week.', date: '2026-08-12', priority: 'Normal', recipient: 'Parent', status: 'Submitted' },
+]
+
+export const TEACHER_NOTIFICATIONS = [
+  { id: 'tn1', category: 'Admin', title: 'Staff meeting moved to 3:30 PM', body: 'The Friday briefing has been rescheduled to the conference room.', time: '09:12 AM', read: false },
+  { id: 'tn2', category: 'Schedule', title: 'Room change — Grade 7A Mathematics', body: 'Monday 08:00 lesson now in Rm 201.', time: '08:40 AM', read: false },
+  { id: 'tn3', category: 'Announcements', title: 'Sports Day reminder', body: 'House colors required this Saturday. Parents welcome from 8:00 AM.', time: 'Yesterday', read: false },
+  { id: 'tn4', category: 'Reports', title: 'Report feedback from admin', body: 'Mid-term report — Grade 7A returned for revision.', time: 'Yesterday', read: true },
+  { id: 'tn5', category: 'Exams', title: 'Mid-term timetable published', body: 'Mathematics starts August 25 at 09:00 AM.', time: '2 days ago', read: true },
+  { id: 'tn6', category: 'Admin', title: 'Grading policy update', body: 'New grading policy takes effect Term 1.', time: '3 days ago', read: true },
+]
+
 export const AUDIT_LOGS = [
-  { id: 'l1', user: 'Sarah Mitchell', action: 'Student created', module: 'Students', date: '2026-08-16 07:51', ip: '192.168.1.14', status: 'Success' },
-  { id: 'l2', user: 'James Okonkwo', action: 'Attendance saved', module: 'Attendance', date: '2026-08-16 08:05', ip: '192.168.1.22', status: 'Success' },
-  { id: 'l3', user: 'Sarah Mitchell', action: 'Payment recorded', module: 'Fees', date: '2026-08-14 16:18', ip: '192.168.1.14', status: 'Success' },
-  { id: 'l4', user: 'Marcus Chen', action: 'School created', module: 'Tenants', date: '2026-08-12 11:02', ip: '10.0.0.8', status: 'Success' },
-  { id: 'l5', user: 'Sarah Mitchell', action: 'Teacher updated', module: 'Teachers', date: '2026-08-11 09:44', ip: '192.168.1.14', status: 'Success' },
-  { id: 'l6', user: 'Accounts Bot', action: 'Fee deleted', module: 'Fees', date: '2026-08-09 13:21', ip: '10.0.0.8', status: 'Warning' },
-  { id: 'l7', user: 'Marcus Chen', action: 'Plan upgraded', module: 'Subscriptions', date: '2026-08-08 10:16', ip: '10.0.0.8', status: 'Success' },
-  { id: 'l8', user: 'Unknown', action: 'Failed login attempt', module: 'Security', date: '2026-08-07 22:03', ip: '203.0.113.40', status: 'Failed' },
+  { id: 'l1', user: 'Sarah Mitchell', school: 'Green Valley Academy', action: 'Student created', module: 'Students', resource: 'Student #GVA-2026-012', severity: 'Info', date: '2026-08-16 07:51', ip: '192.168.1.14', status: 'Success' },
+  { id: 'l2', user: 'James Okonkwo', school: 'Green Valley Academy', action: 'Attendance saved', module: 'Attendance', resource: 'Grade 7A — 2026-08-16', severity: 'Info', date: '2026-08-16 08:05', ip: '192.168.1.22', status: 'Success' },
+  { id: 'l3', user: 'Sarah Mitchell', school: 'Green Valley Academy', action: 'Payment recorded', module: 'Fees', resource: 'INV-2026-002', severity: 'Info', date: '2026-08-14 16:18', ip: '192.168.1.14', status: 'Success' },
+  { id: 'l4', user: 'Marcus Chen', school: 'Platform', action: 'School created', module: 'Tenants', resource: 'Little Steps Kindergarten', severity: 'Info', date: '2026-08-12 11:02', ip: '10.0.0.8', status: 'Success' },
+  { id: 'l5', user: 'Sarah Mitchell', school: 'Green Valley Academy', action: 'Teacher updated', module: 'Teachers', resource: 'Teacher #GVA-T-003', severity: 'Info', date: '2026-08-11 09:44', ip: '192.168.1.14', status: 'Success' },
+  { id: 'l6', user: 'Accounts Bot', school: 'Platform', action: 'Fee deleted', module: 'Fees', resource: 'INV-2026-009', severity: 'Warning', date: '2026-08-09 13:21', ip: '10.0.0.8', status: 'Warning' },
+  { id: 'l7', user: 'Marcus Chen', school: 'Platform', action: 'Plan upgraded', module: 'Subscriptions', resource: 'Westfield Academy → Premium', severity: 'Info', date: '2026-08-08 10:16', ip: '10.0.0.8', status: 'Success' },
+  { id: 'l8', user: 'Unknown', school: '—', action: 'Failed login attempt', module: 'Security', resource: 'admin@riverside.edu', severity: 'Critical', date: '2026-08-07 22:03', ip: '203.0.113.40', status: 'Failed' },
+  { id: 'l9', user: 'Marcus Chen', school: 'Platform', action: 'School suspended', module: 'Tenants', resource: 'Heritage Christian School', severity: 'Warning', date: '2026-08-06 14:22', ip: '10.0.0.8', status: 'Success' },
 ]
 
 export const SCHOOL_ADMINS = [
@@ -318,7 +396,8 @@ export const SCHOOL_ADMINS = [
   { id: 'sa2', name: 'Rosa Martinez', school: 'Sunrise Kindergarten', email: 'admin@sunrisekg.edu', phone: '+1 (555) 590-2200', status: 'Active', lastLogin: '2026-08-15 18:11' },
   { id: 'sa3', name: 'Lisa Tanaka', school: 'Bright Future School', email: 'admin@brightfuture.edu', phone: '+1 (555) 774-3300', status: 'Active', lastLogin: '2026-08-16 06:55' },
   { id: 'sa4', name: 'Ahmed Hassan', school: 'Al-Noor Academy', email: 'admin@alnoor.edu', phone: '+1 (555) 462-6600', status: 'Active', lastLogin: '2026-08-16 08:02' },
-  { id: 'sa5', name: 'David Osei', school: 'Riverside Primary School', email: 'admin@riverside.edu', phone: '+1 (555) 384-9100', status: 'Inactive', lastLogin: '2026-07-02 14:20' },
+  { id: 'sa5', name: 'David Osei', school: 'Riverside Primary School', email: 'admin@riverside.edu', phone: '+1 (555) 384-9100', status: 'Suspended', lastLogin: '2026-07-02 14:20' },
+  { id: 'sa6', name: 'Hana Yusuf', school: 'Little Steps Kindergarten', email: 'admin@littlesteps.edu', phone: '+1 (555) 720-8810', status: 'Invited', lastLogin: '—' },
 ]
 
 export const PLATFORM_USERS = [
@@ -389,6 +468,54 @@ export const REVENUE_DATA = [
   { month: 'Aug', revenue: 78400, schools: 7 },
 ]
 
+export const REVENUE_BY_PLAN = [
+  { name: 'Premium', value: 5988 },
+  { name: 'Standard', value: 1494 },
+  { name: 'Basic', value: 396 },
+  { name: 'Trial', value: 0 },
+]
+
+export const REVENUE_BY_SCHOOL = [
+  { school: 'Al-Noor Academy', revenue: 21940 },
+  { school: 'Green Valley Academy', revenue: 18420 },
+  { school: 'Westfield Academy', revenue: 14760 },
+  { school: 'Bright Future School', revenue: 8960 },
+  { school: 'Sunrise Kindergarten', revenue: 7420 },
+]
+
+export const DAU_WEEKLY = [
+  { day: 'Mon', dau: 2820 },
+  { day: 'Tue', dau: 3110 },
+  { day: 'Wed', dau: 2975 },
+  { day: 'Thu', dau: 3260 },
+  { day: 'Fri', dau: 3420 },
+  { day: 'Sat', dau: 1980 },
+  { day: 'Sun', dau: 1520 },
+]
+
+export const MODULE_USAGE = [
+  { name: 'Attendance', value: 84200 },
+  { name: 'Fees', value: 52300 },
+  { name: 'Messages', value: 31800 },
+  { name: 'Exams', value: 18400 },
+  { name: 'Timetable', value: 12100 },
+  { name: 'Reports', value: 9400 },
+]
+
+export const DELIVERY_DATA = [
+  { channel: 'WhatsApp', sent: 8420, delivered: 8170, failed: 250 },
+  { channel: 'Email', sent: 12640, delivered: 12390, failed: 250 },
+  { channel: 'SMS', sent: 3180, delivered: 3100, failed: 80 },
+]
+
+export const API_ERRORS = [
+  { day: 'Mon', errors: 6, failures: 2 },
+  { day: 'Tue', errors: 4, failures: 1 },
+  { day: 'Wed', errors: 8, failures: 3 },
+  { day: 'Thu', errors: 3, failures: 0 },
+  { day: 'Fri', errors: 5, failures: 2 },
+]
+
 export const SCHOOL_GROWTH_DATA = [
   { month: 'Jan', schools: 3 },
   { month: 'Feb', schools: 4 },
@@ -423,6 +550,184 @@ export const FEE_MONTHLY = [
   { month: 'Jun', collected: 39800, pending: 9100 },
   { month: 'Jul', collected: 45600, pending: 5300 },
   { month: 'Aug', collected: 31200, pending: 12400 },
+]
+
+export interface BusDriver {
+  id: string
+  name: string
+  phone: string
+  license: string
+  status: 'Active' | 'Off Duty' | 'On Leave'
+}
+
+export const BUS_DRIVERS: BusDriver[] = [
+  { id: 'bd1', name: 'Samuel Okafor', phone: '+1 (555) 401-0011', license: 'CDL-A 88412', status: 'Active' },
+  { id: 'bd2', name: 'David Mwangi', phone: '+1 (555) 401-0012', license: 'CDL-B 77431', status: 'Active' },
+  { id: 'bd3', name: 'Joseph Osei', phone: '+1 (555) 401-0013', license: 'CDL-B 66108', status: 'On Leave' },
+]
+
+export interface BusRoute {
+  id: string
+  name: string
+  stops: string[]
+  distance: string
+}
+
+export const BUS_ROUTES: BusRoute[] = [
+  { id: 'br1', name: 'Route 1 — North Loop', stops: ['Elm Street', 'Hill Street', 'Oak Boulevard'], distance: '12 km' },
+  { id: 'br2', name: 'Route 2 — River Side', stops: ['River Lane', 'Pine Street', 'Cedar Court'], distance: '9 km' },
+  { id: 'br3', name: 'Route 3 — East Valley', stops: ['Birch Ave', 'Garden Road', 'Willow Way'], distance: '14 km' },
+]
+
+export interface Bus {
+  id: string
+  number: string
+  plate: string
+  driver: string
+  capacity: number
+  assigned: number
+  route: string
+  status: 'Active' | 'Maintenance' | 'Inactive'
+}
+
+export const BUSES: Bus[] = [
+  { id: 'b1', number: 'BUS-01', plate: 'GV-8421A', driver: 'Samuel Okafor', capacity: 54, assigned: 41, route: 'Route 1 — North Loop', status: 'Active' },
+  { id: 'b2', number: 'BUS-02', plate: 'GV-5587B', driver: 'David Mwangi', capacity: 54, assigned: 38, route: 'Route 2 — River Side', status: 'Active' },
+  { id: 'b3', number: 'BUS-03', plate: 'GV-3390C', driver: 'Joseph Osei', capacity: 44, assigned: 0, route: 'Route 3 — East Valley', status: 'Maintenance' },
+  { id: 'b4', number: 'BUS-04', plate: 'GV-9112D', driver: '—', capacity: 30, assigned: 0, route: 'Unassigned', status: 'Inactive' },
+]
+
+export interface BusAssignment {
+  id: string
+  studentName: string
+  className: string
+  bus: string
+  route: string
+  stop: string
+}
+
+export const BUS_ASSIGNMENTS: BusAssignment[] = [
+  { id: 'ba1', studentName: 'Ethan Williams', className: 'Grade 7A', bus: 'BUS-01', route: 'Route 1 — North Loop', stop: 'Elm Street' },
+  { id: 'ba2', studentName: 'Aisha Johnson', className: 'Grade 7A', bus: 'BUS-01', route: 'Route 1 — North Loop', stop: 'Hill Street' },
+  { id: 'ba3', studentName: 'Lily Chen', className: 'Grade 6A', bus: 'BUS-02', route: 'Route 2 — River Side', stop: 'River Lane' },
+  { id: 'ba4', studentName: 'Sofia Rodriguez', className: 'Grade 7B', bus: 'BUS-02', route: 'Route 2 — River Side', stop: 'Pine Street' },
+  { id: 'ba5', studentName: 'Zara Ahmed', className: 'Grade 6B', bus: 'BUS-01', route: 'Route 1 — North Loop', stop: 'Oak Boulevard' },
+  { id: 'ba6', studentName: 'Mason Lee', className: 'Grade 9A', bus: 'BUS-02', route: 'Route 2 — River Side', stop: 'Cedar Court' },
+]
+
+export function busOf(studentName: string): string {
+  return BUS_ASSIGNMENTS.find(a => a.studentName === studentName)?.bus ?? '—'
+}
+
+export interface StaffMember {
+  id: string
+  name: string
+  role: 'Driver' | 'Security' | 'Cleaner' | 'Cook' | 'Accountant' | 'Other'
+  phone: string
+  compensation: number
+  status: 'Active' | 'On Leave' | 'Inactive'
+}
+
+export const STAFF: StaffMember[] = [
+  { id: 'sf1', name: 'Samuel Okafor', role: 'Driver', phone: '+1 (555) 401-0011', compensation: 2100, status: 'Active' },
+  { id: 'sf2', name: 'David Mwangi', role: 'Driver', phone: '+1 (555) 401-0012', compensation: 2100, status: 'Active' },
+  { id: 'sf3', name: 'Rashid Ali', role: 'Security', phone: '+1 (555) 402-0021', compensation: 1500, status: 'Active' },
+  { id: 'sf4', name: 'Grace Njoroge', role: 'Cleaner', phone: '+1 (555) 402-0022', compensation: 1100, status: 'Active' },
+  { id: 'sf5', name: 'Mary Wanjiku', role: 'Cook', phone: '+1 (555) 402-0023', compensation: 1300, status: 'On Leave' },
+  { id: 'sf6', name: 'Tom Ochieng', role: 'Accountant', phone: '+1 (555) 402-0024', compensation: 2600, status: 'Active' },
+  { id: 'sf7', name: 'Hassan Farah', role: 'Other', phone: '+1 (555) 402-0025', compensation: 1200, status: 'Inactive' },
+]
+
+export interface IncomeRecord {
+  id: string
+  date: string
+  amount: number
+  category: 'Student Fees' | 'Registration' | 'Transport' | 'Donations' | 'Other'
+  source: string
+  reference: string
+  notes?: string
+}
+
+export const INCOME: IncomeRecord[] = [
+  { id: 'in1', date: '2026-08-14', amount: 1200, category: 'Student Fees', source: 'Ethan Williams', reference: 'TXN-88421', notes: 'Tuition — August' },
+  { id: 'in2', date: '2026-08-12', amount: 1200, category: 'Student Fees', source: 'Aisha Johnson', reference: 'TXN-88490' },
+  { id: 'in3', date: '2026-08-09', amount: 250, category: 'Student Fees', source: 'Sofia Rodriguez', reference: 'TXN-88601', notes: 'Activities fee' },
+  { id: 'in4', date: '2026-08-08', amount: 320, category: 'Transport', source: 'Bus fee pool', reference: 'TRP-2026-08', notes: 'August transport' },
+  { id: 'in5', date: '2026-08-05', amount: 200, category: 'Registration', source: 'New enrollment', reference: 'REG-2026-018' },
+  { id: 'in6', date: '2026-08-03', amount: 1500, category: 'Donations', source: 'Alumni Association', reference: 'DON-1102' },
+  { id: 'in7', date: '2026-08-01', amount: 1100, category: 'Student Fees', source: 'Lily Chen', reference: 'TXN-88512' },
+  { id: 'in8', date: '2026-08-15', amount: 200, category: 'Student Fees', source: 'Mason Lee', reference: 'TXN-88688', notes: 'Lab fee' },
+]
+
+export interface SchoolReport {
+  id: string
+  type: 'Student' | 'Teacher'
+  title: string
+  subject: string
+  className: string
+  date: string
+  status: 'Draft' | 'Pending Review' | 'Approved' | 'Sent' | 'Archived'
+  preparedBy: string
+}
+
+export const SCHOOL_REPORTS: SchoolReport[] = [
+  { id: 'rp1', type: 'Student', title: 'Mid-term report — Grade 7A', subject: 'All subjects', className: 'Grade 7A', date: '2026-08-14', status: 'Pending Review', preparedBy: 'James Okonkwo' },
+  { id: 'rp2', type: 'Student', title: 'Progress report — Grade 6A', subject: 'All subjects', className: 'Grade 6A', date: '2026-08-12', status: 'Approved', preparedBy: 'Angela Morrison' },
+  { id: 'rp3', type: 'Teacher', title: 'Teacher evaluation — Term 2', subject: 'Mathematics', className: 'Grade 8B', date: '2026-08-10', status: 'Pending Review', preparedBy: 'Sarah Mitchell' },
+  { id: 'rp4', type: 'Student', title: 'Term 1 report cards', subject: 'All subjects', className: 'All classes', date: '2026-07-30', status: 'Sent', preparedBy: 'Academics Office' },
+  { id: 'rp5', type: 'Teacher', title: 'Class performance summary', subject: 'Science', className: 'Grade 8A', date: '2026-08-08', status: 'Draft', preparedBy: 'Carlos Mendez' },
+  { id: 'rp6', type: 'Student', title: 'Behaviour & conduct report', subject: '—', className: 'Grade 9C', date: '2026-07-22', status: 'Archived', preparedBy: 'Sarah Mitchell' },
+]
+
+export interface TimetableEntry {
+  id: string
+  day: 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday'
+  start: string
+  end: string
+  subject: string
+  teacher: string
+  className: string
+  location: string
+}
+
+export const TIMETABLE_ENTRIES: TimetableEntry[] = [
+  { id: 'tt1', day: 'Monday', start: '08:00', end: '09:00', subject: 'Mathematics', teacher: 'James Okonkwo', className: 'Grade 7A', location: 'Rm 201' },
+  { id: 'tt2', day: 'Monday', start: '09:00', end: '10:00', subject: 'English', teacher: 'Angela Morrison', className: 'Grade 7A', location: 'Rm 202' },
+  { id: 'tt3', day: 'Monday', start: '10:00', end: '11:00', subject: 'Science', teacher: 'Carlos Mendez', className: 'Grade 7A', location: 'Rm 301' },
+  { id: 'tt4', day: 'Monday', start: '12:00', end: '13:00', subject: 'History', teacher: 'Fatima Al-Rashid', className: 'Grade 7A', location: 'Rm 102' },
+  { id: 'tt5', day: 'Monday', start: '13:00', end: '14:00', subject: 'ICT', teacher: 'Kevin Park', className: 'Grade 7A', location: 'Rm 401' },
+  { id: 'tt6', day: 'Tuesday', start: '08:00', end: '09:00', subject: 'English', teacher: 'Angela Morrison', className: 'Grade 7A', location: 'Rm 202' },
+  { id: 'tt7', day: 'Tuesday', start: '09:00', end: '10:00', subject: 'Mathematics', teacher: 'James Okonkwo', className: 'Grade 7A', location: 'Rm 201' },
+  { id: 'tt8', day: 'Tuesday', start: '10:00', end: '11:00', subject: 'History', teacher: 'Fatima Al-Rashid', className: 'Grade 7A', location: 'Rm 102' },
+  { id: 'tt9', day: 'Tuesday', start: '12:00', end: '13:00', subject: 'Science', teacher: 'Carlos Mendez', className: 'Grade 7A', location: 'Rm 301' },
+  { id: 'tt10', day: 'Tuesday', start: '13:00', end: '14:00', subject: 'Literature', teacher: 'Angela Morrison', className: 'Grade 7A', location: 'Rm 202' },
+  { id: 'tt11', day: 'Wednesday', start: '08:00', end: '09:00', subject: 'Science', teacher: 'Carlos Mendez', className: 'Grade 7A', location: 'Rm 301' },
+  { id: 'tt12', day: 'Wednesday', start: '09:00', end: '10:00', subject: 'ICT', teacher: 'Kevin Park', className: 'Grade 7A', location: 'Rm 401' },
+  { id: 'tt13', day: 'Wednesday', start: '10:00', end: '11:00', subject: 'English', teacher: 'Angela Morrison', className: 'Grade 7A', location: 'Rm 202' },
+  { id: 'tt14', day: 'Wednesday', start: '12:00', end: '13:00', subject: 'Mathematics', teacher: 'James Okonkwo', className: 'Grade 7A', location: 'Rm 201' },
+  { id: 'tt15', day: 'Wednesday', start: '13:00', end: '14:00', subject: 'Physics', teacher: 'James Okonkwo', className: 'Grade 7A', location: 'Rm 105' },
+  { id: 'tt16', day: 'Thursday', start: '08:00', end: '09:00', subject: 'Mathematics', teacher: 'James Okonkwo', className: 'Grade 7A', location: 'Rm 201' },
+  { id: 'tt17', day: 'Thursday', start: '09:00', end: '10:00', subject: 'Science', teacher: 'Carlos Mendez', className: 'Grade 7A', location: 'Rm 301' },
+  { id: 'tt18', day: 'Thursday', start: '10:00', end: '11:00', subject: 'PE', teacher: 'Coach Reid', className: 'Grade 7A', location: 'Gym' },
+  { id: 'tt19', day: 'Thursday', start: '12:00', end: '13:00', subject: 'English', teacher: 'Angela Morrison', className: 'Grade 7A', location: 'Rm 202' },
+  { id: 'tt20', day: 'Thursday', start: '13:00', end: '14:00', subject: 'History', teacher: 'Fatima Al-Rashid', className: 'Grade 7A', location: 'Rm 102' },
+  { id: 'tt21', day: 'Friday', start: '08:00', end: '09:00', subject: 'History', teacher: 'Fatima Al-Rashid', className: 'Grade 7A', location: 'Rm 102' },
+  { id: 'tt22', day: 'Friday', start: '09:00', end: '10:00', subject: 'Mathematics', teacher: 'James Okonkwo', className: 'Grade 7A', location: 'Rm 201' },
+  { id: 'tt23', day: 'Friday', start: '10:00', end: '11:00', subject: 'Science', teacher: 'Carlos Mendez', className: 'Grade 7A', location: 'Rm 301' },
+  { id: 'tt24', day: 'Friday', start: '12:00', end: '13:00', subject: 'ICT', teacher: 'Kevin Park', className: 'Grade 7A', location: 'Rm 401' },
+  { id: 'tt25', day: 'Friday', start: '13:00', end: '14:00', subject: 'Assembly', teacher: 'Admin', className: 'Grade 7A', location: 'Hall' },
+  { id: 'tt26', day: 'Monday', start: '08:00', end: '09:00', subject: 'Mathematics', teacher: 'James Okonkwo', className: 'Grade 8B', location: 'Rm 105' },
+  { id: 'tt27', day: 'Monday', start: '08:00', end: '09:00', subject: 'English', teacher: 'Angela Morrison', className: 'Grade 6A', location: 'Rm 101' },
+  { id: 'tt28', day: 'Monday', start: '08:00', end: '09:00', subject: 'Mathematics', teacher: 'Kevin Park', className: 'Grade 9A', location: 'Rm 201' },
+  { id: 'tt29', day: 'Tuesday', start: '10:00', end: '11:00', subject: 'Science', teacher: 'Carlos Mendez', className: 'Grade 8A', location: 'Rm 301' },
+]
+
+export const FINANCE_MONTHLY = [
+  { month: 'Apr', income: 39800, expenses: 14100 },
+  { month: 'May', income: 43100, expenses: 15600 },
+  { month: 'Jun', income: 40900, expenses: 14200 },
+  { month: 'Jul', income: 46800, expenses: 16500 },
+  { month: 'Aug', income: 5770, expenses: 19170 },
 ]
 
 export const SUBSCRIPTION_PLANS = [
