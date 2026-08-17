@@ -1,13 +1,15 @@
 import { useState } from "react"
-import type { User } from "../data/mockData"
-import { USERS } from "../data/mockData"
+import type { Role, User } from "../data/mockData"
 import { Icon } from "../components/Icons"
 
-interface LoginPageProps {
+interface SuperadminLoginPageProps {
   onLogin: (user: User) => void
 }
 
-const ROLE_CARDS = [
+const SUPERADMIN_EMAIL = "harun@gmail.com"
+const SUPERADMIN_PASSWORD = "miah123"
+
+const DEMO_ACCOUNTS = [
   {
     role: "superadmin" as const,
     label: "Super Admin",
@@ -42,126 +44,58 @@ const ROLE_CARDS = [
   },
 ]
 
-/* ---------- tiny inline SVG icons ---------- */
-const EmailIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#94a3b8"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <rect x="2" y="4" width="20" height="16" rx="2" />
-    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-  </svg>
-)
+const cardName: Record<string, string> = {
+  superadmin: "Harun",
+  schooladmin: "Sarah Mitchell",
+  teacher: "James Okonkwo",
+  parent: "Priya Sharma",
+}
 
-const LockIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#94a3b8"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-  </svg>
-)
+const roleMap: Record<string, Role> = {
+  "superadmin@xanaano.com": "superadmin",
+  "admin@greenvalley.edu": "schooladmin",
+  "teacher@greenvalley.edu": "teacher",
+  "parent@greenvalley.edu": "parent",
+}
 
-const EyeOffIcon = ({
-  onClick,
-  style,
-}: {
-  onClick: () => void
-  style?: React.CSSProperties
-}) => (
-  <svg
-    onClick={onClick}
-    style={{ cursor: "pointer", ...style }}
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#94a3b8"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" />
-    <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
-    <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" />
-    <path d="m2 2 20 20" />
-  </svg>
-)
-
-const EyeIcon = ({
-  onClick,
-  style,
-}: {
-  onClick: () => void
-  style?: React.CSSProperties
-}) => (
-  <svg
-    onClick={onClick}
-    style={{ cursor: "pointer", ...style }}
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#94a3b8"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
-    <circle cx="12" cy="12" r="3" />
-  </svg>
-)
-
-const LoginArrowIcon = () => (
-  <svg
-    width="28"
-    height="28"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#1e293b"
-    strokeWidth="2.2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-    <polyline points="10 17 15 12 10 7" />
-    <line x1="15" y1="12" x2="3" y2="12" />
-  </svg>
-)
-
-export default function LoginPage({ onLogin }: LoginPageProps) {
+const SuperadminLoginPage = ({ onLogin }: SuperadminLoginPageProps) => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
   const [showDemo, setShowDemo] = useState(false)
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    const user = USERS.find((u) => u.email === email)
-    if (user) {
+    if (email === SUPERADMIN_EMAIL && password === SUPERADMIN_PASSWORD) {
+      const user: User = {
+        id: "superadmin-1",
+        name: "Harun",
+        email: SUPERADMIN_EMAIL,
+        role: "superadmin",
+      }
       onLogin(user)
     } else {
-      setError("Invalid credentials. Use one of the demo accounts below.")
+      setError(
+        "Invalid credentials. Use superadmin@xanaano.com or check the provided email/password.",
+      )
     }
   }
 
   const quickLogin = (email: string) => {
-    const user = USERS.find((u) => u.email === email)
-    if (user) onLogin(user)
+    const user = DEMO_ACCOUNTS.find((a) => a.email === email)
+    if (user) {
+      const role = roleMap[email]
+      if (role === "superadmin") {
+        setShowDemo(true)
+      } else {
+        onLogin({
+          id: `demo-${role}`,
+          name: cardName[role],
+          email,
+          role,
+        })
+      }
+    }
   }
 
   return (
@@ -201,54 +135,6 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
         }}
       />
 
-      {/* ── Brand mark top-left ── */}
-      <div
-        style={{
-          position: "fixed",
-          top: 24,
-          left: 28,
-          zIndex: 10,
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-        }}
-      >
-        <div
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: 10,
-            background: "#2563eb",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 4px 14px rgba(37,99,235,0.30)",
-          }}
-        >
-          <span
-            style={{
-              color: "white",
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              fontWeight: 800,
-              fontSize: 18,
-            }}
-          >
-            X
-          </span>
-        </div>
-        <span
-          style={{
-            fontFamily: "'Plus Jakarta Sans', sans-serif",
-            fontWeight: 800,
-            fontSize: 18,
-            color: "#0f172a",
-            letterSpacing: "-0.3px",
-          }}
-        >
-          Xanaano
-        </span>
-      </div>
-
       {/* ── Main content wrapper ── */}
       <div
         style={{
@@ -262,21 +148,6 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           padding: "24px 20px",
         }}
       >
-        {/* Decorative arc behind the card */}
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 520,
-            height: 520,
-            borderRadius: "50%",
-            border: "1px solid rgba(148,163,184,0.18)",
-            pointerEvents: "none",
-          }}
-        />
-
         {/* ── Glassmorphic login card ── */}
         <div
           style={{
@@ -307,24 +178,6 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
             }}
           />
 
-          {/* Icon */}
-          <div style={{ textAlign: "center", marginBottom: 24 }}>
-            <div
-              style={{
-                width: 52,
-                height: 52,
-                borderRadius: 14,
-                background: "rgba(241,245,249,0.85)",
-                border: "1px solid rgba(226,232,240,0.6)",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <LoginArrowIcon />
-            </div>
-          </div>
-
           {/* Heading */}
           <h1
             style={{
@@ -337,7 +190,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               letterSpacing: "-0.4px",
             }}
           >
-            Sign in with email
+            Sign in as Super Admin
           </h1>
           <p
             style={{
@@ -348,9 +201,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               lineHeight: 1.5,
             }}
           >
-            Welcome back to Xanaano School
-            <br />
-            Management System
+            Welcome back to Xanaano School Management System
           </p>
 
           {/* Form */}
@@ -366,7 +217,19 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                   display: "flex",
                 }}
               >
-                <EmailIcon />
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#94a3b8"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="2" y="4" width="20" height="16" rx="2" />
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                </svg>
               </span>
               <input
                 type="email"
@@ -412,10 +275,22 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                   display: "flex",
                 }}
               >
-                <LockIcon />
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#94a3b8"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
               </span>
               <input
-                type={showPassword ? "text" : "password"}
+                type="password"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -451,30 +326,22 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                   display: "flex",
                 }}
               >
-                {showPassword ? (
-                  <EyeIcon onClick={() => setShowPassword(false)} />
-                ) : (
-                  <EyeOffIcon onClick={() => setShowPassword(true)} />
-                )}
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" />
+                  <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
+                  <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" />
+                  <path d="m2 2 20 20" />
+                </svg>
               </span>
-            </div>
-
-            {/* Forgot password */}
-            <div style={{ textAlign: "right", marginBottom: 20 }}>
-              <button
-                type="button"
-                style={{
-                  fontSize: 13,
-                  color: "#2563eb",
-                  fontWeight: 500,
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  fontFamily: "'Inter', sans-serif",
-                }}
-              >
-                Forgot password?
-              </button>
             </div>
 
             {/* Error */}
@@ -527,105 +394,85 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               Get Started
             </button>
           </form>
-
-          {/* Divider */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 14,
-              margin: "24px 0 20px",
-            }}
-          >
-            <div
-              style={{
-                flex: 1,
-                height: 1,
-                background:
-                  "repeating-linear-gradient(90deg, #cbd5e1 0px, #cbd5e1 4px, transparent 4px, transparent 8px)",
-              }}
-            />
-            <span
-              style={{ fontSize: 12, color: "#94a3b8", whiteSpace: "nowrap" }}
-            >
-              Or sign in with
-            </span>
-            <div
-              style={{
-                flex: 1,
-                height: 1,
-                background:
-                  "repeating-linear-gradient(90deg, #cbd5e1 0px, #cbd5e1 4px, transparent 4px, transparent 8px)",
-              }}
-            />
-          </div>
-
-          {/* Demo quick-login toggle */}
-          <button
-            type="button"
-            onClick={() => setShowDemo(!showDemo)}
-            style={{
-              width: "100%",
-              padding: "11px 16px",
-              borderRadius: 12,
-              border: "1px solid rgba(226,232,240,0.7)",
-              background: "rgba(255,255,255,0.5)",
-              color: "#475569",
-              fontSize: 13,
-              fontWeight: 500,
-              cursor: "pointer",
-              fontFamily: "'Inter', sans-serif",
-              transition: "all 0.2s",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(255,255,255,0.8)"
-              e.currentTarget.style.borderColor = "#93c5fd"
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "rgba(255,255,255,0.5)"
-              e.currentTarget.style.borderColor = "rgba(226,232,240,0.7)"
-            }}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
-            Demo Accounts — click to sign in
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              style={{
-                transform: showDemo ? "rotate(180deg)" : "rotate(0deg)",
-                transition: "transform 0.25s ease",
-              }}
-            >
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </button>
         </div>
 
-        {/* ── Demo role cards (collapsible) ── */}
+        {/* Footer */}
+        <div
+          style={{
+            textAlign: "center",
+            marginTop: 28,
+            fontSize: 12,
+            color: "rgba(100,116,139,0.7)",
+          }}
+        >
+          © 2026 Xanaano · All rights reserved
+        </div>
+
+        {/* Demo Accounts */}
+        <button
+          type="button"
+          onClick={() => setShowDemo(!showDemo)}
+          style={{
+            width: "100%",
+            padding: "11px 16px",
+            borderRadius: 12,
+            border: "1px solid rgba(226,232,240,0.7)",
+            background: "rgba(255,255,255,0.5)",
+            color: "#475569",
+            fontSize: 13,
+            fontWeight: 500,
+            cursor: "pointer",
+            fontFamily: "'Inter', sans-serif",
+            transition: "all 0.2s",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(255,255,255,0.8)"
+            e.currentTarget.style.borderColor = "#93c5fd"
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(255,255,255,0.5)"
+            e.currentTarget.style.borderColor = "rgba(226,232,240,0.7)"
+          }}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+          Demo Accounts — click to sign in
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{
+              transform: showDemo ? "rotate(180deg)" : "rotate(0deg)",
+              transition: "transform 0.25s ease",
+            }}
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+
+        {/* Demo role cards (collapsible) */}
         <div
           style={{
             overflow: "hidden",
@@ -643,7 +490,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               gap: 10,
             }}
           >
-            {ROLE_CARDS.map((card) => (
+            {DEMO_ACCOUNTS.map((card) => (
               <button
                 key={card.role}
                 onClick={() => quickLogin(card.email)}
@@ -717,31 +564,9 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
             ))}
           </div>
         </div>
-
-        {/* Footer */}
-        <div
-          style={{
-            textAlign: "center",
-            marginTop: 28,
-            fontSize: 12,
-            color: "rgba(100,116,139,0.7)",
-          }}
-        >
-          © 2026 Xanaano · All rights reserved
-        </div>
       </div>
-
-      {/* ── Global keyframe for fade-in ── */}
-      <style>{`
-        @keyframes loginFadeIn {
-          from { opacity: 0; transform: translateY(16px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        /* Apply to the main card wrapper */
-        div[data-login-card] {
-          animation: loginFadeIn 0.5s ease-out;
-        }
-      `}</style>
     </div>
   )
 }
+
+export default SuperadminLoginPage
